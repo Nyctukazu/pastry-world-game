@@ -1,0 +1,50 @@
+## --- .NET / C# Build Artifacts ---
+bin/
+obj/
+out/
+[Bb]in/
+[Oo]bj/
+*.user
+*.userosscache
+*.sln.docstates
+
+## --- IDE & Code Editors ---
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sln.iml
+
+# VS Code
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Rider / JetBrains
+.idea/
+*.sln.docstates
+
+## --- MonoGame / Content Pipeline ---
+# Ignore MGCB intermediate build caches
+Content/bin/
+Content/obj/
+
+## --- OS Generated Files ---
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## --- Package & Tool Caches ---
+*.nupkg
+*.snupkg
+.nuget/
+*.log

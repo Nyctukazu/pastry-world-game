@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Project References -->
+    <ProjectReference Include="..\PastryWorld.Core\PastryWorld.Core.csproj" />
+    <ProjectReference Include="..\PastryWorld.Engine\PastryWorld.Engine.csproj" />
+  </ItemGroup>
+
+</Project>
