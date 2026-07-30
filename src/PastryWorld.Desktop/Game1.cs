@@ -1,18 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using ImGuiNET;
 using MonoGame.ImGuiNet;
 
 using PastryWorld.Core;   
 using PastryWorld.Engine;
 using PastryWorld.Editor;
-using PastryWorld.Maps;
 
 namespace PastryWorld.Desktop;
 
 public class Game1 : Game
-{   private JsonMapSerializer mapSerializer;
+{   
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private WorldEditorSystem _editorSystem;
@@ -39,9 +37,8 @@ public class Game1 : Game
         _imGuiRenderer.RebuildFontAtlas();
 
         _camera = new Camera2D(GraphicsDevice.Viewport);
-        mapSerializer = new JsonMapSerializer();
 
-        _editorSystem = new WorldEditorSystem(_imGuiRenderer, _mapData, mapSerializer);
+        _editorSystem = new WorldEditorSystem(_imGuiRenderer);
 
         base.Initialize();
 
@@ -81,7 +78,6 @@ public class Game1 : Game
             samplerState: SamplerState.PointClamp,
             transformMatrix: _camera.GetViewMatrix()    
         );
-
 
         _spriteBatch.End();
         _editorSystem.DrawUI(gameTime);
