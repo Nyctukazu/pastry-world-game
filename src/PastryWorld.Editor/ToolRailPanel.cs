@@ -2,6 +2,10 @@ using ImGuiNET;
 using PastryWorld.Editor.enums;
 using ImVector4 = System.Numerics.Vector4;
 using ImVector2 = System.Numerics.Vector2;
+using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using Microsoft.Xna.Framework.Graphics;
+using System.Drawing;
 
 
 namespace PastryWorld.Editor;
@@ -21,8 +25,47 @@ public class ToolRailPanel
     private const float RailWidth = 56f;
     private const float ButtonSize = 35f;
     private const float PanelWidth = 260f;
+    
+    public ToolRailPanel() {}
 
-    public void Draw()
+    public void Update(XnaVector2 worldPos)
+    {
+        switch (_activeTool)
+        {
+            case EditorTool.TileEditor:
+                _levelTool.Update(worldPos);
+                break;
+            case EditorTool.EntityEditor:
+
+                break;
+            case EditorTool.SmartObjectEditor:
+  
+                break;
+            case EditorTool.AnimationEditor:
+
+                break;
+        }
+    }
+
+    public void Draw(SpriteBatch spriteBatch, XnaRectangle visibleWorldBounds, Texture2D pixel)
+    {
+        switch (_activeTool)
+        {
+            case EditorTool.TileEditor:
+                _levelTool.Draw(spriteBatch, visibleWorldBounds, pixel);
+                break;
+            case EditorTool.EntityEditor:
+
+                break;
+            case EditorTool.SmartObjectEditor:
+
+                break;
+            case EditorTool.AnimationEditor:
+
+                break;
+        }
+    }
+    public void DrawGui()
     {
         DrawRail();
         if (_activeTool != EditorTool.None)

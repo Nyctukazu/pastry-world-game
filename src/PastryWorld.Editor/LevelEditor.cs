@@ -3,11 +3,14 @@ using ImVector4 = System.Numerics.Vector4;
 using ImVector2 = System.Numerics.Vector2;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
 using Microsoft.Xna.Framework.Input;
 
 using PastryWorld.Maps;
 using PastryWorld.Core;
 using System.IO;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace PastryWorld.Editor;
 public class LevelEditor
@@ -17,16 +20,29 @@ public class LevelEditor
     private JsonMapSerializer _mapSerializer;
     private int _selectedTileIndex = 0;
     private string _mapName = "MyCustomWorld";
-    private string _loadedMapStatus = "";
     private string _statusMessage = "";
     private bool _isStatusError = false;
-    private string _currentTool = "Tile";
-    private int _selectedTileId = 0;
+    private TileBrushController _brush = new TileBrushController();
 
     public LevelEditor()
     {
         _mapData = new MapData();
         _mapSerializer = new JsonMapSerializer();
+    }
+
+    public void Update(XnaVector2 mouseWorldPos)
+    {
+        if (ImGui.GetIO().WantCaptureMouse) return;
+
+        _brush.Update(mouseWorldPos, _selectedTileIndex, (x, y, tileId) =>
+        {
+            _mapData.SetTile(x, y, tileId);
+        });
+    }
+
+    public void Draw(SpriteBatch spriteBatch, Rectangle visibleWorldBounds, Texture2D pixel)
+    {
+        _brush.DrawOverlay(spriteBatch, visibleWorldBounds, pixel);
     }
 
     public void DrawTileToolOptions()
@@ -65,7 +81,7 @@ public class LevelEditor
                 SetStatus($"Load Failed: {ex.Message}", isError: true);
             }
         }
-        
+
         if (!isNameValid) ImGui.EndDisabled();
         if (!string.IsNullOrEmpty(_statusMessage))
         {
@@ -75,6 +91,16 @@ public class LevelEditor
 
             ImGui.TextColored(color, _statusMessage);
         }
+
+        ImGui.Spacing();
+        ImGui.Text("Brush");
+        BrushModeButton("Brush", BrushMode.Single);
+        ImGui.SameLine();
+        BrushModeButton("Rect", BrushMode.Rectangle);
+
+        ImGui.Spacing();
+        ImGui.Checkbox("Show Grid (16x16)", ref _brush.ShowGrid);
+        ImGui.Checkbox("Show Sub-grid (8x8)", ref _brush.ShowSubGrid);
 
         ImGui.Spacing();
         ImGui.Text("Tileset");
@@ -91,19 +117,24 @@ public class LevelEditor
             if (i % 2 == 0) ImGui.SameLine();
         }
     }
-    private void HandleMousePlacement(XnaMatrix cameraMatrix)
-    {
-        MouseState mouse = Mouse.GetState();
-        if (mouse.LeftButton == ButtonState.Pressed)
-        {
-            XnaVector2 worldPos = XnaVector2.Transform(new XnaVector2(mouse.X, mouse.Y), XnaMatrix.Invert(cameraMatrix));
-            int tileX = (int)(worldPos.X / 32);
-            int tileY = (int)(worldPos.Y / 32);
 
-            if (_currentTool == "Tile")
-            {
-                _mapData.SetTile(tileX, tileY, _selectedTileId);
-            }
+    private void BrushModeButton(string label, BrushMode mode)
+    {
+        bool active = _brush.Mode == mode;
+        if (active)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Button, new ImVector4(0.25f, 0.55f, 0.9f, 1f));
+        }
+
+        if (ImGui.Button(label, new ImVector2(60, 28)))
+        {
+            _brush.Mode = mode;
+
+        }
+           
+        if (active)
+        {
+            ImGui.PopStyleColor();
         }
     }
 

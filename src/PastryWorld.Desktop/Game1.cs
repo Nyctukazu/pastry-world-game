@@ -18,6 +18,7 @@ public class Game1 : Game
     private KeyboardState _previousKeyboardState;
     private MapData _mapData = new MapData();
     private Camera2D _camera;
+    private Texture2D _pixel;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -39,7 +40,6 @@ public class Game1 : Game
         _camera = new Camera2D(GraphicsDevice.Viewport);
 
         _editorSystem = new WorldEditorSystem(_imGuiRenderer);
-
         base.Initialize();
 
     }
@@ -47,6 +47,8 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        _pixel = new Texture2D(GraphicsDevice, 1, 1);
+        _pixel.SetData(new[] { Color.White });
 
     }
 
@@ -78,6 +80,7 @@ public class Game1 : Game
             samplerState: SamplerState.PointClamp,
             transformMatrix: _camera.GetViewMatrix()    
         );
+        _editorSystem.DrawWorld(_spriteBatch, GraphicsDevice.Viewport.Bounds, _camera.GetViewMatrix(), _pixel);
 
         _spriteBatch.End();
         _editorSystem.DrawUI(gameTime);
