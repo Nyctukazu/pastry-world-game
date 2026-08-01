@@ -13,7 +13,7 @@ public static class MapPathUtility
     public static string GetUserMapsDirectory()
     {
     #if DEBUG
-        string projectSourceDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Data\Levels"));
+        string projectSourceDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Data", "Levels"));
         Directory.CreateDirectory(projectSourceDir);
         return projectSourceDir;
     #else

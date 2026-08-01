@@ -9,11 +9,12 @@
   <ItemGroup>
     <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
-        <PackageReference Include="AlexMacocian.MonoGame.ImGuiNet" Version="1.1.0" />
+    <PackageReference Include="AlexMacocian.MonoGame.ImGuiNet" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PastryWorld.Core\PastryWorld.Core.csproj" />
     <ProjectReference Include="..\PastryWorld.Maps\PastryWorld.Maps.csproj" />
+    <ProjectReference Include="..\PastryWorld.Tools\PastryWorld.Tools.csproj" />
   </ItemGroup>
 </Project>

@@ -1,11 +1,13 @@
 using ImGuiNET;
-using PastryWorld.Editor.enums;
+using PastryWorld.Editor.Enums;
 using ImVector4 = System.Numerics.Vector4;
 using ImVector2 = System.Numerics.Vector2;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using Microsoft.Xna.Framework.Graphics;
-using System.Drawing;
+using PastryWorld.Editor.Level;
+using PastryWorld.Editor.Entity;
+using PastryWorld.Editor.Animation;
 
 
 namespace PastryWorld.Editor;

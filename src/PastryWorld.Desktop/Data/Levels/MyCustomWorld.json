@@ -1,5 +1,7 @@
 {
+  "Name": "Untitled Map",
   "Width": 50,
   "Height": 50,
-  "TileSize": 16
+  "TileSize": 16,
+  "TileGrid": []
 }

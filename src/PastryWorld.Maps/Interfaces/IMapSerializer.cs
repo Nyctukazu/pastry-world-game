@@ -1,5 +1,5 @@
 
-using PastryWorld.Core;
+using PastryWorld.Core.Level;
 
 namespace PastryWorld.Maps.Interfaces;
 

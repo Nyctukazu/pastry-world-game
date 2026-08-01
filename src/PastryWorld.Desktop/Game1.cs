@@ -2,10 +2,12 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.ImGuiNet;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
-using PastryWorld.Core;   
+using PastryWorld.Core.Level;   
 using PastryWorld.Engine;
 using PastryWorld.Editor;
+using PastryWorld.Editor.Level;
 
 namespace PastryWorld.Desktop;
 
@@ -19,6 +21,7 @@ public class Game1 : Game
     private MapData _mapData = new MapData();
     private Camera2D _camera;
     private Texture2D _pixel;
+    private TilePalette _palette;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -40,6 +43,7 @@ public class Game1 : Game
         _camera = new Camera2D(GraphicsDevice.Viewport);
 
         _editorSystem = new WorldEditorSystem(_imGuiRenderer);
+        _palette = new TilePalette();
         base.Initialize();
 
     }
@@ -49,6 +53,8 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _pixel = new Texture2D(GraphicsDevice, 1, 1);
         _pixel.SetData(new[] { Color.White });
+        Texture2D tilesetTexture = Content.Load<Texture2D>("Tilesets/pastry_world_cake_tileset");
+        _palette.Load(tilesetTexture);
 
     }
 
@@ -75,13 +81,14 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
+        XnaMatrix viewMatrix = _camera.GetViewMatrix();
+        XnaMatrix editorViewMatrix = _editorSystem.GetFinalViewMatrix(viewMatrix);
         GraphicsDevice.Clear(Color.CornflowerBlue);
         _spriteBatch.Begin(
             samplerState: SamplerState.PointClamp,
-            transformMatrix: _camera.GetViewMatrix()    
+            transformMatrix: editorViewMatrix    
         );
         _editorSystem.DrawWorld(_spriteBatch, GraphicsDevice.Viewport.Bounds, _camera.GetViewMatrix(), _pixel);
-
         _spriteBatch.End();
         _editorSystem.DrawUI(gameTime);
         base.Draw(gameTime);

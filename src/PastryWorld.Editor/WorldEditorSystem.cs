@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
 
+using PastryWorld;
+
 
 namespace PastryWorld.Editor;
 
@@ -14,14 +16,15 @@ public class WorldEditorSystem : IEditorSystem
 {
     private readonly ToolRailPanel _toolRailPanel;
     private readonly ImGuiRenderer _imGuiRenderer;
-    private readonly LevelEditor _levelEditor;
+    private readonly EditorCamera _editorCamera;
     public bool IsActive { get; set; } = false;
+    public float CurrentZoom => _editorCamera.Zoom;
 
     public WorldEditorSystem(ImGuiRenderer imGuiRenderer)
     {
         _imGuiRenderer = imGuiRenderer;
         _toolRailPanel = new ToolRailPanel();
-        _levelEditor = new LevelEditor();
+        _editorCamera = new EditorCamera();
     }
 
     public void ToggleMode() => IsActive = !IsActive;
@@ -29,10 +32,14 @@ public class WorldEditorSystem : IEditorSystem
     {
         if (!IsActive) return;
 
+        _editorCamera.UpdateInput();
+
+        XnaMatrix finalCameraMatrix = cameraMatrix * _editorCamera.GetViewMatrix();
+
         MouseState mouseState = Mouse.GetState();
         XnaVector2 screenPos = new XnaVector2(mouseState.X, mouseState.Y);
 
-        XnaMatrix invertedCamera = XnaMatrix.Invert(cameraMatrix);
+        XnaMatrix invertedCamera = XnaMatrix.Invert(finalCameraMatrix);
         XnaVector2 worldPos = XnaVector2.Transform(screenPos, invertedCamera);
 
         _toolRailPanel.Update(worldPos);
@@ -42,21 +49,15 @@ public class WorldEditorSystem : IEditorSystem
     {
         if (!IsActive) return;
 
+        XnaMatrix finalViewMatrix = viewMatrix * _editorCamera.GetViewMatrix();
+
         if (viewMatrix.M11 == 0 && viewMatrix.M22 == 0) return;
 
-        XnaMatrix invertedView = XnaMatrix.Invert(viewMatrix);
+        XnaMatrix invertedView = XnaMatrix.Invert(finalViewMatrix);
 
         if (float.IsNaN(invertedView.M11)) return; 
 
-        XnaVector2 topLeft = XnaVector2.Transform(new XnaVector2(viewportBounds.Left, viewportBounds.Top), invertedView);
-        XnaVector2 bottomRight = XnaVector2.Transform(new XnaVector2(viewportBounds.Right, viewportBounds.Bottom), invertedView);
-
-        XnaRectangle visibleWorldBounds = new XnaRectangle(
-            (int)topLeft.X,
-            (int)topLeft.Y,
-            (int)(bottomRight.X - topLeft.X),
-            (int)(bottomRight.Y - topLeft.Y)
-        );
+        XnaRectangle visibleWorldBounds = _editorCamera.GetVisibleWorldBounds(viewportBounds, invertedView);
 
         _toolRailPanel.Draw(spriteBatch, visibleWorldBounds, pixel);
     }
@@ -68,4 +69,11 @@ public class WorldEditorSystem : IEditorSystem
         _toolRailPanel.DrawGui();
         _imGuiRenderer.EndLayout();
     }
+
+    public XnaMatrix GetFinalViewMatrix(XnaMatrix baseViewMatrix)
+    {
+        return baseViewMatrix * _editorCamera.GetViewMatrix();
+    }
+
+    
 }
