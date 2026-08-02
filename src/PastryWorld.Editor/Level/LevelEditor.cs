@@ -25,10 +25,11 @@ public class LevelEditor
     private string _mapName = "MyCustomWorld";
     private string _statusMessage = "";
     private bool _isStatusError = false;
-    private TileBrushController _brush = new TileBrushController();
+    private BrushController _brush = new BrushController();
     private CommandManager _commandManager;
     private EditorToolbar _toolbar;
     private TilePalette _palette;
+    private XnaVector2 _mouseWorldPos;
 
     public LevelEditor()
     {
@@ -42,6 +43,8 @@ public class LevelEditor
     public void Update(XnaVector2 mouseWorldPos)
     {
         if (ImGui.GetIO().WantCaptureMouse) return;
+
+        _mouseWorldPos = mouseWorldPos;
 
         _brush.Update(
             mouseWorldPos, 
@@ -57,7 +60,7 @@ public class LevelEditor
 
     public void Draw(SpriteBatch spriteBatch, Rectangle visibleWorldBounds, Texture2D pixel)
     {
-        _brush.DrawOverlay(spriteBatch, visibleWorldBounds, pixel);
+        _brush.DrawOverlay(spriteBatch, visibleWorldBounds, pixel, _mapData);
     }
 
     public void DrawTileToolOptions()
@@ -119,10 +122,26 @@ public class LevelEditor
         ImGui.Checkbox("Show Sub-grid (8x8)", ref _brush.ShowSubGrid);
 
         ImGui.Spacing();
+        ImGui.Text($"Dimensions: {_mapData.Width} x {_mapData.Height} Tiles");
+
+        bool autoExpand = _mapData.AutoExpand;
+        if (ImGui.Checkbox("Auto-Expand Bounds on Paint", ref autoExpand))
+        {
+            _mapData.AutoExpand = autoExpand;
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("When enabled, painting past the map edges automatically expands the map size.");
+        }
+
+        ImGui.Spacing();
         _toolbar.DrawToolbarGui();
 
         ImGui.Spacing();
         DrawTilePaletteGui(_palette);
+
+        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _selectedTileIndex);
     }
 
     private void BrushModeButton(string label, BrushMode mode)

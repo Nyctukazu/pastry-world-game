@@ -27,6 +27,9 @@ public class ToolRailPanel
     private const float RailWidth = 56f;
     private const float ButtonSize = 35f;
     private const float PanelWidth = 260f;
+    private const float StatusBarHeight = 26f;
+    private EditorStatusBar _statusBar = new EditorStatusBar(StatusBarHeight);
+    private float PanelHeight;
     
     public ToolRailPanel() {}
 
@@ -75,9 +78,13 @@ public class ToolRailPanel
     }
 
     private void DrawRail()
-    {
+    {   
+        var viewport = ImGui.GetMainViewport();
+
+        PanelHeight = viewport.Size.Y - StatusBarHeight;
+
         ImGui.SetNextWindowPos(new ImVector2(0, 0), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new ImVector2(RailWidth, ImGui.GetIO().DisplaySize.Y), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new ImVector2(RailWidth, PanelHeight), ImGuiCond.Always);
 
         ImGuiWindowFlags flags = ImGuiWindowFlags.NoTitleBar
             | ImGuiWindowFlags.NoResize
@@ -121,7 +128,7 @@ public class ToolRailPanel
     private void DrawFlyoutPanel()
     {
         ImGui.SetNextWindowPos(new ImVector2(RailWidth, 0), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new ImVector2(PanelWidth, ImGui.GetIO().DisplaySize.Y), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new ImVector2(PanelWidth, PanelHeight), ImGuiCond.Always);
 
         ImGuiWindowFlags flags = ImGuiWindowFlags.NoTitleBar
             | ImGuiWindowFlags.NoResize

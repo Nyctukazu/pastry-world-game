@@ -9,10 +9,11 @@ using System.Collections.Generic;
 using PastryWorld.Editor.Commands;
 using PastryWorld.Core;
 using PastryWorld.Core.Level;
+using System.Text.RegularExpressions;
 
 namespace PastryWorld.Editor;
 
-public class TileBrushController
+public class BrushController
 {   
     private readonly List<TileChange> _activeStrokeChanges = new();
     private bool _isPaintingStroke = false;
@@ -134,7 +135,7 @@ public class TileBrushController
         _isPaintingStroke = false;
     }
 
-    public void DrawOverlay(SpriteBatch spriteBatch, XnaRectangle visibleWorldBounds, Texture2D pixel)
+    public void DrawOverlay(SpriteBatch spriteBatch, XnaRectangle visibleWorldBounds, Texture2D pixel, MapData mapData)
     {
         _pixel = pixel;
 
@@ -157,7 +158,54 @@ public class TileBrushController
         {
             DrawRectPreview(spriteBatch, _rectStart.Value);
         }
+
+        DrawOutOfBoundsShade(spriteBatch, mapData, pixel, visibleWorldBounds);
                     
+    }
+
+    public void DrawOutOfBoundsShade(SpriteBatch spriteBatch, MapData mapData, Texture2D pixel, XnaRectangle visibleWorldBounds)
+    {
+        int mapPxW = mapData.Width * mapData.TileSize;
+        int mapPxH = mapData.Height * mapData.TileSize;
+        Color darkOverlay = Color.Black * 0.6f;
+
+        if (visibleWorldBounds.Top < 0)
+        {
+            int height = Math.Min(visibleWorldBounds.Height, -visibleWorldBounds.Top);
+            spriteBatch.Draw(pixel, new XnaRectangle(visibleWorldBounds.Left, visibleWorldBounds.Top, visibleWorldBounds.Width, height), darkOverlay);
+        }
+
+        if (visibleWorldBounds.Bottom > mapPxH)
+        {
+            int y = Math.Max(visibleWorldBounds.Top, mapPxH);
+            int height = visibleWorldBounds.Bottom - y;
+            spriteBatch.Draw(pixel, new XnaRectangle(visibleWorldBounds.Left, y, visibleWorldBounds.Width, height), darkOverlay);
+        }
+
+        if (visibleWorldBounds.Left < 0)
+        {
+            int width = Math.Min(visibleWorldBounds.Width, -visibleWorldBounds.Left);
+            int top = Math.Max(visibleWorldBounds.Top, 0);
+            int bottom = Math.Min(visibleWorldBounds.Bottom, mapPxH);
+            if (bottom > top)
+            {
+                spriteBatch.Draw(pixel, new XnaRectangle(visibleWorldBounds.Left, top, width, bottom - top), darkOverlay);
+            }
+        }
+
+        if (visibleWorldBounds.Right > mapPxW)
+        {
+            int x = Math.Max(visibleWorldBounds.Left, mapPxW);
+            int width = visibleWorldBounds.Right - x;
+            int top = Math.Max(visibleWorldBounds.Top, 0);
+            int bottom = Math.Min(visibleWorldBounds.Bottom, mapPxH);
+            if (bottom > top)
+            {
+                spriteBatch.Draw(pixel, new XnaRectangle(x, top, width, bottom - top), darkOverlay);
+            }
+        }
+
+        DrawRectOutline(spriteBatch, new XnaRectangle(0, 0, mapPxW, mapPxH), Color.Orange * 0.8f, 2);
     }
 
     private void DrawGridLines(SpriteBatch spriteBatch, XnaRectangle bounds, int cell, Color color)

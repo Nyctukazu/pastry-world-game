@@ -20,6 +20,7 @@ public class WorldEditorSystem : IEditorSystem
     public bool IsActive { get; set; } = false;
     public float CurrentZoom => _editorCamera.Zoom;
 
+
     public WorldEditorSystem(ImGuiRenderer imGuiRenderer)
     {
         _imGuiRenderer = imGuiRenderer;
