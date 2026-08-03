@@ -20,10 +20,10 @@ namespace PastryWorld.Editor;
 public class ToolRailPanel
 {
     private EditorTool _activeTool = EditorTool.None;
-    private LevelEditor _levelTool = new LevelEditor();
-    private EntityEditor _entityTool = new EntityEditor();
-    private SmartObjectEditor _smartObjectTool = new SmartObjectEditor();
-    private AnimationEditor _animationTool = new AnimationEditor();
+    private LevelEditor _levelTool;
+    private EntityEditor _entityTool;
+    private SmartObjectEditor _smartObjectTool;
+    private AnimationEditor _animationTool;
     private const float RailWidth = 56f;
     private const float ButtonSize = 35f;
     private const float PanelWidth = 260f;
@@ -31,7 +31,16 @@ public class ToolRailPanel
     private EditorStatusBar _statusBar = new EditorStatusBar(StatusBarHeight);
     private float PanelHeight;
     
-    public ToolRailPanel() {}
+    public ToolRailPanel(LevelEditor level, 
+                        EntityEditor entity, 
+                        SmartObjectEditor smartObject, 
+                        AnimationEditor animation)
+    {
+        _levelTool = level;
+        _entityTool = entity;
+        _smartObjectTool = smartObject;
+        _animationTool = animation;
+    }
 
     public void Update(XnaVector2 worldPos)
     {

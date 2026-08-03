@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using static System.Array;
 
@@ -14,34 +15,62 @@ public class MapData
 
     public bool AutoExpand { get; set; } = false;
     
-    public int[] TileGrid { get; set; } = Empty<int>();
+    public List<int> TileGrid { get; set; } = new();
 
-    public MapData()
-    {
-        TileGrid = new int[Width * Height];
-    }
+    public MapData() : this(50, 50) { }
+
 
     public MapData(int width, int height)
     {
         Width = width;
         Height = height;
-        TileGrid = new int[width * height];
+        InitializeGrid();
+    }
+
+    /// <summary>
+    /// Fills the map grid with -1 (representing empty/air tiles).
+    /// </summary>
+    public void InitializeGrid()
+    {
+        TileGrid = new List<int>(Width * Height);
+        for (int i = 0; i < Width * Height; i++)
+        {
+            TileGrid.Add(-1);
+        }
     }
 
     public int GetTile(int x, int y)
     {
-        if (TileGrid == null) return 0;
-        if (x < 0 || x >= Width || y < 0 || y >= Height) return 0;
+        if (TileGrid == null) return -1;
+        if (x < 0 || x >= Width || y < 0 || y >= Height) return -1;
 
         int index = y * Width + x;
 
-        if (index < 0 || index >= TileGrid.Length) return 0;
+        if (index < 0 || index >= TileGrid.Count) return -1;
 
         return TileGrid[index];
     }
 
+    public void SetTile(int x, int y, int tileId)
+    {
+        if (AutoExpand)
+        {
+            EnsureCapacity(x, y);
+        }
+
+        if (TileGrid == null || x < 0 || x >= Width || y < 0 || y >= Height)
+            return;
+
+        int index = y * Width + x;
+
+        if (index >= 0 && index < TileGrid.Count)
+        {
+            TileGrid[index] = tileId;
+        }
+    }
+
     /// <summary>
-    /// Grows the map array if (x, y) falls outside the current grid dimensions.
+    /// Grows the map grid if (x, y) falls outside the current grid dimensions.
     /// </summary>
     public void EnsureCapacity(int x, int y, int padding = 10)
     {
@@ -52,33 +81,32 @@ public class MapData
             int newWidth = Math.Max(Width, x + 1 + padding);
             int newHeight = Math.Max(Height, y + 1 + padding);
 
-            int [] newGrid = new int[newWidth * newHeight];
+            List<int> newGrid = new List<int>(newWidth * newHeight);
 
+            // Populate new expanded list with empty tiles (-1)
+            for (int i = 0; i < newWidth * newHeight; i++)
+            {
+                newGrid.Add(-1);
+            }
+
+            // Copy old tile data to the new expanded grid
             for (int oldY = 0; oldY < Height; oldY++)
             {
                 for (int oldX = 0; oldX < Width; oldX++)
                 {
-                    newGrid[oldY * newWidth + oldX] = TileGrid[oldY * Width + oldX];
+                    int oldIndex = oldY * Width + oldX;
+                    int newIndex = oldY * newWidth + oldX;
+
+                    if (oldIndex < TileGrid.Count)
+                    {
+                        newGrid[newIndex] = TileGrid[oldIndex];
+                    }
                 }
             }
 
             Width = newWidth;
             Height = newHeight;
             TileGrid = newGrid;
-        }
-    }
-
-    public void SetTile(int x, int y, int tileId)
-    {
-        if (TileGrid == null) return;
-        
-        if (x < 0 || x >= Width || y < 0 || y >= Height) return;
-
-        int index = y * Width +  x;
-
-        if (index >= 0 && index < TileGrid.Length)
-        {
-            TileGrid[index] = tileId;
         }
     }
 }

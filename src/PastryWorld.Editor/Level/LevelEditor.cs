@@ -14,14 +14,17 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PastryWorld.Editor.Enums;
 using PastryWorld.Editor.Commands;
+using System;
+using System.Linq;
+using MonoGame.ImGuiNet;
 
 namespace PastryWorld.Editor.Level;
 public class LevelEditor
 {
-
+    private readonly TileRegistry _registry;
     private MapData _mapData;
     private JsonMapSerializer _mapSerializer;
-    private int _selectedTileIndex = 0;
+    private int _selectedTileIndex = 5;
     private string _mapName = "MyCustomWorld";
     private string _statusMessage = "";
     private bool _isStatusError = false;
@@ -30,14 +33,24 @@ public class LevelEditor
     private EditorToolbar _toolbar;
     private TilePalette _palette;
     private XnaVector2 _mouseWorldPos;
+    public int _selectedGroupIndex = 0;
 
-    public LevelEditor()
+    public LevelEditor(MapData mapData, CommandManager command, TileRegistry registry)
     {
-        _mapData = new MapData();
+        _mapData = mapData;
         _mapSerializer = new JsonMapSerializer();
-        _commandManager = new CommandManager();
+        _commandManager = command;
         _toolbar = new EditorToolbar(_commandManager);
-        _palette = new TilePalette();
+        _registry = registry;
+        _palette = new TilePalette(_registry);
+
+    }
+
+    public void LoadContent(Texture2D spritesheet, ImGuiRenderer imGuiRenderer)
+    {
+        IntPtr imGuiTexId = imGuiRenderer.BindTexture(spritesheet);
+
+        _palette.Load(spritesheet, imGuiTexId);
     }
 
     public void Update(XnaVector2 mouseWorldPos)
@@ -45,6 +58,7 @@ public class LevelEditor
         if (ImGui.GetIO().WantCaptureMouse) return;
 
         _mouseWorldPos = mouseWorldPos;
+        _selectedTileIndex = _palette.selectedTileIndex;
 
         _brush.Update(
             mouseWorldPos, 
@@ -139,7 +153,7 @@ public class LevelEditor
         _toolbar.DrawToolbarGui();
 
         ImGui.Spacing();
-        DrawTilePaletteGui(_palette);
+        _palette.DrawTilePaletteGui(ref _selectedTileIndex);
 
         EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _selectedTileIndex);
     }
@@ -161,26 +175,6 @@ public class LevelEditor
         if (active)
         {
             ImGui.PopStyleColor();
-        }
-    }
-
-    public void DrawTilePaletteGui(TilePalette palette)
-    {
-        ImGui.Text("Tileset Palette");
-        ImGui.Separator();
-
-        foreach (var (id, def) in palette.Definitions)
-        {
-            bool isSelected = (_selectedTileIndex == id);
-            if (isSelected) ImGui.PushStyleColor(ImGuiCol.Button, new ImVector4(0.2f, 0.6f, 1f, 1f));
-
-            if (ImGui.Button($"{def.Name}##{id}", new ImVector2(70, 30)))
-            {
-                _selectedTileIndex = id;
-            }
-
-            if (isSelected) ImGui.PopStyleColor();
-            if ((id + 1) % 2 != 0) ImGui.SameLine();
         }
     }
 

@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using PastryWorld.Core.Level;
 using PastryWorld.Core.Enums;
 
-namespace PastryWorld.Editor.Level;
+namespace PastryWorld.Core.Level;
 
 public class TileRegistry
 {
@@ -26,4 +25,8 @@ public class TileRegistry
             Collision = TileCollision.Passable
         };
     }
+
+    public bool Contains(int tileId) => _definitions.ContainsKey(tileId);
+    public IEnumerable<TileDefinition> AllTiles => _definitions.Values;
+    public void Clear() => _definitions.Clear();
 }

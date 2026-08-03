@@ -8,11 +8,13 @@ using PastryWorld.Core.Level;
 using PastryWorld.Engine;
 using PastryWorld.Editor;
 using PastryWorld.Editor.Level;
+using PastryWorld.Maps;
 
 namespace PastryWorld.Desktop;
 
 public class Game1 : Game
 {   
+    private TileMapRenderer _mapRenderer;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private WorldEditorSystem _editorSystem;
@@ -21,7 +23,8 @@ public class Game1 : Game
     private MapData _mapData = new MapData();
     private Camera2D _camera;
     private Texture2D _pixel;
-    private TilePalette _palette;
+    private Texture2D _tilesetPastryTown;
+    private TileRegistry _tileRegistry;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -41,9 +44,10 @@ public class Game1 : Game
         _imGuiRenderer.RebuildFontAtlas();
 
         _camera = new Camera2D(GraphicsDevice.Viewport);
+        _mapRenderer = new TileMapRenderer();
+        _tileRegistry = new TileRegistry();
 
-        _editorSystem = new WorldEditorSystem(_imGuiRenderer);
-        _palette = new TilePalette();
+        _editorSystem = new WorldEditorSystem(_imGuiRenderer, _camera, _mapData, _tileRegistry);
         base.Initialize();
 
     }
@@ -52,10 +56,9 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _pixel = new Texture2D(GraphicsDevice, 1, 1);
-        _pixel.SetData(new[] { Color.White });
-        Texture2D tilesetTexture = Content.Load<Texture2D>("Tilesets/pastry_world_cake_tileset");
-        _palette.Load(tilesetTexture);
-
+        _pixel.SetData([Color.White]);
+        _tilesetPastryTown = Content.Load<Texture2D>("Tilesets/pastry_world_cake_tileset");
+        _editorSystem.LoadContent(_tilesetPastryTown);
     }
 
     protected override void Update(GameTime gameTime)
@@ -88,6 +91,7 @@ public class Game1 : Game
             samplerState: SamplerState.PointClamp,
             transformMatrix: editorViewMatrix    
         );
+        _mapRenderer.Draw(_spriteBatch, _mapData, _tileRegistry, _tilesetPastryTown);
         _editorSystem.DrawWorld(_spriteBatch, GraphicsDevice.Viewport.Bounds, _camera.GetViewMatrix(), _pixel);
         _spriteBatch.End();
         _editorSystem.DrawUI(gameTime);

@@ -1,5 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using Microsoft.Xna.Framework.Input;
 
 namespace PastryWorld.Engine;
 /// <summary>
@@ -41,6 +44,21 @@ public class Camera2D
                 * Matrix.CreateRotationZ(Rotation)
                 * Matrix.CreateScale(Zoom, Zoom, 1.0f)
                 * Matrix.CreateTranslation(new Vector3(_viewport.Width * 0.5f, _viewport.Height * 0.5f, 0.0f));
+    }
+
+    public XnaVector2 CameraPosition(EditorCamera _camera, XnaMatrix cameraMatrix)
+    {
+        _camera.UpdateInput();
+
+        XnaMatrix finalCameraMatrix = cameraMatrix * _camera.GetViewMatrix();
+
+        MouseState mouseState = Mouse.GetState();
+        XnaVector2 screenPos = new XnaVector2(mouseState.X, mouseState.Y);
+
+        XnaMatrix invertedCamera = XnaMatrix.Invert(finalCameraMatrix);
+        XnaVector2 worldPos = XnaVector2.Transform(screenPos, invertedCamera);
+
+        return worldPos;
     }
 
 }

@@ -10,4 +10,8 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PastryWorld.Tools\PastryWorld.Tools.csproj" />
+  </ItemGroup>
+
 </Project>
