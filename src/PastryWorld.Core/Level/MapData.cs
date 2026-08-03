@@ -109,4 +109,22 @@ public class MapData
             TileGrid = newGrid;
         }
     }
+
+    /// <summary>
+    /// Copies all data from a loaded MapData instance into this existing reference.
+    /// Preserves memory references held by renderers and editor systems.
+    /// </summary>
+    public void CopyFrom(MapData other)
+    {
+        if (other == null) return;
+
+        Name = other.Name;
+        Width = other.Width;
+        Height = other.Height;
+        TileSize = other.TileSize;
+        AutoExpand = other.AutoExpand;
+        
+        // Copy the tile list data
+        TileGrid = new List<int>(other.TileGrid);
+    }
 }

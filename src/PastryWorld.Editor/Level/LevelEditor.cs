@@ -24,7 +24,6 @@ public class LevelEditor
     private readonly TileRegistry _registry;
     private MapData _mapData;
     private JsonMapSerializer _mapSerializer;
-    private int _selectedTileIndex = 5;
     private string _mapName = "MyCustomWorld";
     private string _statusMessage = "";
     private bool _isStatusError = false;
@@ -33,7 +32,6 @@ public class LevelEditor
     private EditorToolbar _toolbar;
     private TilePalette _palette;
     private XnaVector2 _mouseWorldPos;
-    public int _selectedGroupIndex = 0;
 
     public LevelEditor(MapData mapData, CommandManager command, TileRegistry registry)
     {
@@ -55,14 +53,14 @@ public class LevelEditor
 
     public void Update(XnaVector2 mouseWorldPos)
     {
+        int activeTileId = _palette.selectedTileIndex;
         if (ImGui.GetIO().WantCaptureMouse) return;
 
         _mouseWorldPos = mouseWorldPos;
-        _selectedTileIndex = _palette.selectedTileIndex;
 
         _brush.Update(
             mouseWorldPos, 
-            _selectedTileIndex, 
+            activeTileId,
             (x, y, tileId) =>
             {
                 _mapData.SetTile(x, y, tileId);
@@ -89,7 +87,6 @@ public class LevelEditor
         { 
             try
             {
-                WriteLine("Hello");
                 string savePath = MapPathUtility.GetFullPathForMap(_mapName);
                 _mapSerializer.SaveMap(_mapData, savePath);
                 SetStatus($"Saved: {cleanName}.json", isError: false);
@@ -106,7 +103,9 @@ public class LevelEditor
             try
             {
                 string loadPath = Path.Combine(MapPathUtility.GetUserMapsDirectory(), $"{cleanName}.json");
-                _mapData = _mapSerializer.LoadMap(loadPath);
+                MapData loadedMap = _mapSerializer.LoadMap(loadPath);
+                _mapData.CopyFrom(loadedMap);
+                _commandManager.Clear();
                 SetStatus($"Loaded: {cleanName}.json", isError: false);
             }
             catch (System.Exception ex)
@@ -153,9 +152,9 @@ public class LevelEditor
         _toolbar.DrawToolbarGui();
 
         ImGui.Spacing();
-        _palette.DrawTilePaletteGui(ref _selectedTileIndex);
+        _palette.DrawTilePaletteGui();
 
-        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _selectedTileIndex);
+        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _palette.selectedTileIndex);
     }
 
     private void BrushModeButton(string label, BrushMode mode)

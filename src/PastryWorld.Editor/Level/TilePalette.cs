@@ -18,7 +18,7 @@ public class TilePalette
     public List<TileGroup> Groups { get; } = new();
     public Texture2D SheetTexture { get; private set; }
     public IntPtr ImGuiTextureId { get; private set; }
-    public int selectedTileIndex {get; set; }
+    public int selectedTileIndex {get; set; } = 0;
     private int _selectedGroupIndex = 0;
 
     public TilePalette(TileRegistry registry)
@@ -28,7 +28,7 @@ public class TilePalette
     /// <summary>
     /// Slices a spritesheet, organizes tiles into TileGroups, and registers them into the master TileRegistry.
     /// </summary>
-    public void Load(Texture2D sheet, IntPtr imGuiTextureId, int tileSize = 16, int spacing = 1)
+    public void Load(Texture2D sheet, IntPtr imGuiTextureId, int tileSize = 16, int spacing = 1, int margin = 1)
     {
         SheetTexture = sheet;
         ImGuiTextureId = imGuiTextureId;
@@ -44,16 +44,16 @@ public class TilePalette
 
         Groups.Add(defaultGroup);
 
-        int cols = (sheet.Width + spacing) / (tileSize + spacing);
-        int rows = (sheet.Height + spacing) / (tileSize + spacing);
+        int cols = (sheet.Width) / (tileSize + spacing);
+        int rows = (sheet.Height) / (tileSize + spacing);
 
         int currentId = 0;
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
             {
-                int srcX = c * (tileSize + spacing);
-                int srcY = r * (tileSize + spacing);
+                int srcX = margin + c * (tileSize + spacing);
+                int srcY = margin + r * (tileSize + spacing);
 
                 var tileDef = new TileDefinition
                 {
@@ -102,7 +102,7 @@ public class TilePalette
         return null;
     }
 
-    public void DrawTilePaletteGui(ref int selectedTileIndex)
+    public void DrawTilePaletteGui()
     {
         ImGui.Text("Tileset Palette");
         ImGui.Separator();

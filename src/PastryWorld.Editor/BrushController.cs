@@ -26,6 +26,7 @@ public class BrushController
     private Point _hoverTile;
     private bool _hasHover;
     private Texture2D _pixel;
+    private int _currentSelectedTile = 0;
     public void Update(
         Vector2 mouseWorldPos, 
         int selectedTileIndex, 
@@ -33,7 +34,7 @@ public class BrushController
         MapData mapData, 
         CommandManager commandManager)
     {
-
+        _currentSelectedTile = selectedTileIndex;
         MouseState mouse = Mouse.GetState();
 
         if (ImGui.GetIO().WantCaptureMouse)
@@ -71,7 +72,7 @@ public class BrushController
                 }
                 else if (rightHeld)
                 {
-                    RecordAndPaint(tx, ty, 0, mapData, paintTile);
+                    RecordAndPaint(tx, ty, -1, mapData, paintTile);
                 }
 
                 if (leftReleased || rightReleased)

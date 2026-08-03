@@ -72,4 +72,14 @@ public class CommandManager
             Redo();
         }
     }
+
+    /// <summary>
+    /// Clears all undo and redo history. 
+    /// Call this when loading or initializing a new map.
+    /// </summary>
+    public void Clear()
+    {
+        _undoStack.Clear();
+        _redoStack.Clear();
+    }
 }
