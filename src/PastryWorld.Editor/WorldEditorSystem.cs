@@ -15,6 +15,12 @@ using PastryWorld.Engine;
 using System.Runtime.InteropServices;
 using PastryWorld.Editor.Commands;
 using PastryWorld.Core.Level;
+using System.Collections.Generic;
+using PastryWorld.Maps;
+using System.IO;
+using System.Linq;
+using System;
+using System.Reflection.Metadata.Ecma335;
 
 
 namespace PastryWorld.Editor;
@@ -35,7 +41,6 @@ public class WorldEditorSystem : IEditorSystem
     private Camera2D _camera;
     private EditorCamera _editorCamera;
     public float CurrentZoom => _editorCamera.Zoom;
-
 
     public WorldEditorSystem(ImGuiRenderer imGuiRenderer, Camera2D camera, MapData mapData, TileRegistry registry)
     {
@@ -100,6 +105,4 @@ public class WorldEditorSystem : IEditorSystem
     {
         return baseViewMatrix * _editorCamera.GetViewMatrix();
     }
-
-    
 }

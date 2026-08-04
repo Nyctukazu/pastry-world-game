@@ -86,7 +86,8 @@ public class Game1 : Game
     {
         XnaMatrix viewMatrix = _camera.GetViewMatrix();
         XnaMatrix editorViewMatrix = _editorSystem.GetFinalViewMatrix(viewMatrix);
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        GraphicsDevice.Clear(Color.Transparent);
         _spriteBatch.Begin(
             samplerState: SamplerState.PointClamp,
             transformMatrix: editorViewMatrix    

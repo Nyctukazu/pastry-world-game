@@ -14,6 +14,11 @@ public class CommandManager
     public bool CanUndo => _undoStack.Count > 0;
     public bool CanRedo => _redoStack.Count > 0;
 
+    private float _shortcutTimer = 0f;
+    private const float RepeatDelay = 0.25f;
+
+    private int _lastProcessedFrame = -1;
+
     public string LastUndoName => _undoStack.Last?.Value.Name ?? "";
     public string LastRedoName => _redoStack.Count > 0 ? _redoStack.Peek().Name : "";
 
@@ -57,19 +62,36 @@ public class CommandManager
     public void ProcessShortcuts()
     {
         var io = ImGui.GetIO();
-
         if (io.WantTextInput) return;
+
+        int currentFrame = ImGui.GetFrameCount();
+        if (_lastProcessedFrame == currentFrame) return;
+        _lastProcessedFrame = currentFrame;
+
+        if (_shortcutTimer > 0)
+        {
+            _shortcutTimer -= io.DeltaTime;
+            return;
+        }
 
         bool ctrl = io.KeyCtrl;
         bool shift = io.KeyShift;
 
-        if (ctrl && ImGui.IsKeyPressed(ImGuiKey.Z) && !shift)
+        bool isZ = ImGui.IsKeyPressed(ImGuiKey.Z, false) || ImGui.IsKeyDown(ImGuiKey.Z);
+        bool isY = ImGui.IsKeyPressed(ImGuiKey.Y, false) || ImGui.IsKeyDown(ImGuiKey.Y);
+
+        bool triggerUndo = ctrl && !shift && isZ;
+        bool triggerRedo = (ctrl && !shift && isY) || (ctrl && shift && isZ);
+
+        if (triggerUndo)
         {
             Undo();
+            _shortcutTimer = RepeatDelay;
         }
-        else if ((ctrl && ImGui.IsKeyPressed(ImGuiKey.Y)) || (ctrl && shift && ImGui.IsKeyPressed(ImGuiKey.Z)))
+        else if (triggerRedo)
         {
             Redo();
+            _shortcutTimer = RepeatDelay;
         }
     }
 

@@ -17,6 +17,8 @@ using PastryWorld.Editor.Commands;
 using System;
 using System.Linq;
 using MonoGame.ImGuiNet;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PastryWorld.Editor.Level;
 public class LevelEditor
@@ -24,23 +26,28 @@ public class LevelEditor
     private readonly TileRegistry _registry;
     private MapData _mapData;
     private JsonMapSerializer _mapSerializer;
-    private string _mapName = "MyCustomWorld";
-    private string _statusMessage = "";
-    private bool _isStatusError = false;
-    private BrushController _brush = new BrushController();
+    private string _mapName;
+    private BrushController _brush;
     private CommandManager _commandManager;
     private EditorToolbar _toolbar;
     private TilePalette _palette;
     private XnaVector2 _mouseWorldPos;
+    private readonly MapManager _mapManager;
+    
 
     public LevelEditor(MapData mapData, CommandManager command, TileRegistry registry)
     {
         _mapData = mapData;
+        _brush = new BrushController();
         _mapSerializer = new JsonMapSerializer();
         _commandManager = command;
         _toolbar = new EditorToolbar(_commandManager);
         _registry = registry;
         _palette = new TilePalette(_registry);
+        _mapManager = new MapManager(_mapData, _commandManager, _mapSerializer, _mapName);
+        
+        _mapManager.RefreshMapList();
+
 
     }
 
@@ -68,6 +75,17 @@ public class LevelEditor
             _mapData,
             _commandManager
         );
+
+        var io = ImGui.GetIO();
+
+        if (!io.WantTextInput && io.KeyCtrl && ImGui.IsKeyPressed(ImGuiKey.S))
+        {
+            _mapManager.SaveCurrentMap();
+        }
+
+        _commandManager.ProcessShortcuts();
+
+        if (io.WantCaptureMouse) return;
     }
 
     public void Draw(SpriteBatch spriteBatch, Rectangle visibleWorldBounds, Texture2D pixel)
@@ -77,51 +95,63 @@ public class LevelEditor
 
     public void DrawTileToolOptions()
     {
-        ImGui.InputText("Map Name", ref _mapName, 64);
 
-        string cleanName = _mapName.Trim();
-        bool isNameValid = !string.IsNullOrWhiteSpace(cleanName);
 
-        if (!isNameValid) ImGui.BeginDisabled();
-        if (ImGui.Button("Save Map")) 
+        string currentMapName = _mapManager.MapName ?? "";
+
+        if (ImGui.InputText("Map Name", ref currentMapName, 64))
+        {
+            _mapManager.MapName = currentMapName;
+            _mapData.Name = currentMapName;
+        }
+        if (_mapManager.AvailableMapFiles.Count > 0)
+        {
+            string currentPreview = _mapManager.SelectedMapIndex < _mapManager.AvailableMapFiles.Count
+                ? _mapManager.AvailableMapFiles[_mapManager.SelectedMapIndex]
+                : "Select Map...";
+
+            if (ImGui.BeginCombo("Load Existing", currentPreview))
+            {
+                for (int i = 0; i < _mapManager.AvailableMapFiles.Count; i++)
+                {
+                    bool isSelected = (_mapManager.SelectedMapIndex == i);
+                    if (ImGui.Selectable(_mapManager.AvailableMapFiles[i], isSelected))
+                    {
+                        _mapManager.SelectedMapIndex = i;
+                        _mapManager.LoadMapByName(_mapManager.AvailableMapFiles[i]);
+                    }
+
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+                ImGui.EndCombo();
+            }
+        }
+
+    
+        if (ImGui.Button("Save (Ctrl+S)")) 
         { 
-            try
-            {
-                string savePath = MapPathUtility.GetFullPathForMap(_mapName);
-                _mapSerializer.SaveMap(_mapData, savePath);
-                SetStatus($"Saved: {cleanName}.json", isError: false);
-            }
-            catch (System.Exception ex)
-            {
-                SetStatus($"Save Failed: {ex.Message}", isError: true);
-            }
+            _mapManager.SaveCurrentMap();
         }
 
         ImGui.SameLine();
-        if (ImGui.Button("Load Map"))
+        if (ImGui.Button("+ New Map"))
         {
-            try
-            {
-                string loadPath = Path.Combine(MapPathUtility.GetUserMapsDirectory(), $"{cleanName}.json");
-                MapData loadedMap = _mapSerializer.LoadMap(loadPath);
-                _mapData.CopyFrom(loadedMap);
-                _commandManager.Clear();
-                SetStatus($"Loaded: {cleanName}.json", isError: false);
-            }
-            catch (System.Exception ex)
-            {
-                SetStatus($"Load Failed: {ex.Message}", isError: true);
-            }
+            _mapManager.CreateNewMap("UntitledMap", 50, 50);
         }
 
-        if (!isNameValid) ImGui.EndDisabled();
-        if (!string.IsNullOrEmpty(_statusMessage))
+        if (ImGui.Button("Refresh List"))
         {
-            ImVector4 color = _isStatusError
+            _mapManager.RefreshMapList();
+        }
+
+        
+        if (!string.IsNullOrEmpty(_mapManager.StatusMessage))
+        {
+            ImVector4 color = _mapManager.IsStatusError
                 ? new ImVector4(1f, 0.4f, 0.4f, 1f)
                 : new ImVector4(0.4f, 1f, 0.4f, 1f);
 
-            ImGui.TextColored(color, _statusMessage);
+            ImGui.TextColored(color, _mapManager.StatusMessage);
         }
 
         ImGui.Spacing();
@@ -177,9 +207,5 @@ public class LevelEditor
         }
     }
 
-    private void SetStatus(string message, bool isError)
-    {
-        _statusMessage = message;
-        _isStatusError = isError;
-    }
+
 }

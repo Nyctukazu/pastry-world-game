@@ -7,6 +7,7 @@ using PastryWorld.Editor.Enums;
 using ImGuiNET;
 using System.Collections.Generic;
 using PastryWorld.Editor.Commands;
+using PastryWorld.Editor.Interfaces;
 using PastryWorld.Core;
 using PastryWorld.Core.Level;
 using System.Text.RegularExpressions;
@@ -27,6 +28,11 @@ public class BrushController
     private bool _hasHover;
     private Texture2D _pixel;
     private int _currentSelectedTile = 0;
+    private int _strokeStartWidth;
+    private int _strokeStartHeight;
+    private List<int> _strokeStartGrid = new();
+    private Point? _lastPaintedTile = null;
+
     public void Update(
         Vector2 mouseWorldPos, 
         int selectedTileIndex, 
@@ -41,6 +47,7 @@ public class BrushController
         {
             _hasHover = false;
             _rectStart = null;
+            _lastPaintedTile = null;
             CommitStroke(mapData, commandManager);
             _prevMouse = mouse;
             return;
@@ -66,21 +73,27 @@ public class BrushController
         switch (Mode)
         {
             case BrushMode.Single:
-                if (leftHeld)
-                {
-                    RecordAndPaint(tx, ty, selectedTileIndex, mapData, paintTile);
-                }
-                else if (rightHeld)
-                {
-                    RecordAndPaint(tx, ty, -1, mapData, paintTile);
+                int activeTileId = leftHeld ? selectedTileIndex : (rightHeld ? -1 : -2);
+                if (leftHeld || rightHeld)
+                {   
+                    if (_lastPaintedTile.HasValue)
+                    {
+                        PlotLine(_lastPaintedTile.Value, _hoverTile, activeTileId, mapData, paintTile);
+                    }
+                    else
+                    {
+                        RecordAndPaint(tx, ty, activeTileId, mapData, paintTile);
+                    }
+                    _lastPaintedTile = _hoverTile;
                 }
 
-                if (leftReleased || rightReleased)
+                if (!leftHeld && !rightHeld && (leftReleased || rightReleased))
                 {
                     CommitStroke(mapData, commandManager);
+                    _lastPaintedTile = null;
                 }
                 break;
-            
+                
             case BrushMode.Rectangle:
                 if (leftPressed)
                 {
@@ -101,7 +114,25 @@ public class BrushController
 
     private void RecordAndPaint(int x, int y, int targetTileId, MapData mapData, Action<int, int, int> paintTile)
     {
-        _isPaintingStroke = true;
+        bool isOutOfBounds = x < 0 || y < 0 || x >= mapData.Width || y >= mapData.Height;
+        if (!mapData.AutoExpand && isOutOfBounds)
+        {
+            return;
+        }
+
+        if (!_isPaintingStroke)
+        {
+            _isPaintingStroke = true;
+            _strokeStartWidth = mapData.Width;
+            _strokeStartHeight = mapData.Height;
+            _strokeStartGrid = [..mapData.TileGrid];
+        }
+
+        if (mapData.AutoExpand)
+        {
+            mapData.EnsureCapacity(x, y);
+        }
+
         int currentTileId = mapData.GetTile(x, y);
 
         if (currentTileId != targetTileId && !_activeStrokeChanges.Exists(c => c.X == x && c.Y == y))
@@ -110,6 +141,8 @@ public class BrushController
             paintTile(x, y, targetTileId);
         }
     }
+
+    
 
     private void FillRectangle(Point a, Point b, int tileIndex, MapData mapData, Action<int, int, int> paintTile)
     {
@@ -127,13 +160,79 @@ public class BrushController
 
     private void CommitStroke(MapData mapData, CommandManager commandManager)
     {
-        if (_isPaintingStroke && _activeStrokeChanges.Count > 0)
+        if (_isPaintingStroke)
         {
-            var strokeCopy = new List<TileChange>(_activeStrokeChanges);
-            commandManager.Execute(new PaintTilesCommand(mapData, strokeCopy));
+            bool tilesChanged = _activeStrokeChanges.Count > 0;
+            bool mapExpanded = mapData.Width != _strokeStartWidth || mapData.Height != _strokeStartHeight;
+
+            // ONLY push to CommandManager if an actual state mutation occurred!
+            if (tilesChanged || mapExpanded)
+            {
+                var strokeCopy = new List<TileChange>(_activeStrokeChanges);
+
+                if (mapExpanded)
+                {
+                    var resizeCmd = new ResizeMapCommand(
+                        mapData, 
+                        _strokeStartWidth, 
+                        _strokeStartHeight, 
+                        _strokeStartGrid
+                    );
+
+                    var commands = new List<ICommand> { resizeCmd };
+                    if (tilesChanged)
+                    {
+                        commands.Add(new PaintTilesCommand(mapData, strokeCopy));
+                    }
+
+                    commandManager.Execute(new CompositeCommand("Auto-Expand Map", commands));
+                }
+                else if (tilesChanged)
+                {
+                    commandManager.Execute(new PaintTilesCommand(mapData, strokeCopy));
+                }
+            }
+
             _activeStrokeChanges.Clear();
         }
+
         _isPaintingStroke = false;
+    }
+
+    private void PlotLine(Point start, Point end, int targetTileId, MapData mapData, Action<int, int, int> paintTile)
+    {
+        int x0 = start.X;
+        int y0 = start.Y;
+        int x1 = end.X;
+        int y1 = end.Y;
+
+        int dx = Math.Abs(x1 - x0);
+        int dy = Math.Abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        int maxSteps = dx + dy + 1;
+
+        while (maxSteps-- > 0)
+        {
+            RecordAndPaint(x0, y0, targetTileId, mapData, paintTile);
+
+            if (x0 == x1 && y0 == y1) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy)
+            {
+                err -= dy;
+                x0 += sx;
+            }
+            if (e2 < dx)
+            {
+                err += dx;
+                y0 += sy;
+            }
+        }
+
     }
 
     public void DrawOverlay(SpriteBatch spriteBatch, XnaRectangle visibleWorldBounds, Texture2D pixel, MapData mapData)

@@ -53,10 +53,6 @@ public class MapData
 
     public void SetTile(int x, int y, int tileId)
     {
-        if (AutoExpand)
-        {
-            EnsureCapacity(x, y);
-        }
 
         if (TileGrid == null || x < 0 || x >= Width || y < 0 || y >= Height)
             return;
@@ -124,7 +120,19 @@ public class MapData
         TileSize = other.TileSize;
         AutoExpand = other.AutoExpand;
         
-        // Copy the tile list data
         TileGrid = new List<int>(other.TileGrid);
+    }
+
+    public void RestoreState(int originalWidth, int originalHeight, List<int> originalTiles)
+    {
+        Width = originalWidth;
+        Height = originalHeight;
+        TileGrid = originalTiles;
+    }
+
+    public void Resize(int width, int height)
+    {
+        Width = width;
+        Height = height;
     }
 }
