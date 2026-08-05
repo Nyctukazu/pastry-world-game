@@ -130,9 +130,13 @@ public class TilePalette
             return;
         }
 
+        if (ImGui.BeginChild("TilePaletteScrollArea", new ImVector2(0, 0), ImGuiChildFlags.Borders))
+    {
         float itemSize = 32f;
         float padding = 6f;
-        float windowWidth = ImGui.GetWindowPos().X + ImGui.GetContentRegionAvail().X;
+
+        // Get max right boundary inside the child container
+        float maxRightX = ImGui.GetWindowPos().X + ImGui.GetContentRegionAvail().X;
 
         float sheetW = SheetTexture?.Width ?? 1f;
         float sheetH = SheetTexture?.Height ?? 1f;
@@ -170,14 +174,19 @@ public class TilePalette
                 ImGui.PopStyleColor(2);
             }
 
-            float lastButtonX = ImGui.GetItemRectMax().X;
-            float nextButtonX = lastButtonX + padding + itemSize;
+            float lastButtonRight = ImGui.GetItemRectMax().X;
+            float nextButtonRight = lastButtonRight + padding + itemSize;
 
-            if (i + 1 < activeGroup.Tiles.Count && nextButtonX < windowWidth)
+            // Wrap to next line if the next button exceeds the scroll region width
+            if (i + 1 < activeGroup.Tiles.Count && nextButtonRight < maxRightX)
             {
                 ImGui.SameLine(0, padding);
             }
+
             ImGui.PopID();
+        }
+
+        ImGui.EndChild(); // End Scroll Region
         }
     }
 }
