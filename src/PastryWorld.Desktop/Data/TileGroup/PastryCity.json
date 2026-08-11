@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "name": "Pastry City",
+  "textureFileName": "pastry_world_tileset.png",
+  "tileSize": 16,
+  "padding": 1,
+  "tiles": [
+    {
+      "id": 0,
+      "name": "Grass",
+      "collision": "Passable",
+      "type": "Grass"
+    }
+  ]
+}
