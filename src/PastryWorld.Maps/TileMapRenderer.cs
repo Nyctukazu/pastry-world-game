@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PastryWorld.Core.Level;
@@ -13,9 +14,9 @@ public class TileMapRenderer
         SpriteBatch spriteBatch,
         MapData mapData,
         TileRegistry registry,
-        Texture2D sheetTexture)
+        IReadOnlyDictionary<int, Texture2D> groupTextures)
     {
-        if (mapData == null || registry == null || sheetTexture == null || mapData.TileGrid == null)
+        if (mapData == null || registry == null || groupTextures == null || mapData.TileGrid == null)
             return;
 
         int tileSize = mapData.TileSize;
@@ -35,6 +36,9 @@ public class TileMapRenderer
 
                 TileDefinition def = registry.Get(tileId);
                 if (def == null) continue;
+
+                if (!groupTextures.TryGetValue(def.GroupId, out Texture2D? sheetTexture) || sheetTexture == null)
+                    continue;
 
                 Rectangle destRect = new Rectangle(
                     x * tileSize,

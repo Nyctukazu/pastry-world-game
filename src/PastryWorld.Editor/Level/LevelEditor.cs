@@ -35,7 +35,7 @@ public class LevelEditor
     private readonly MapManager _mapManager;
     
 
-    public LevelEditor(MapData mapData, CommandManager command, TileRegistry registry)
+    public LevelEditor(MapData mapData, CommandManager command, TileRegistry registry, TilePalette palette)
     {
         _mapData = mapData;
         _brush = new BrushController();
@@ -43,7 +43,7 @@ public class LevelEditor
         _commandManager = command;
         _toolbar = new EditorToolbar(_commandManager);
         _registry = registry;
-        _palette = new TilePalette(_registry);
+        _palette = palette;
         _mapManager = new MapManager(_mapData, _commandManager, _mapSerializer, _mapName);
         
         _mapManager.RefreshMapList();
@@ -51,16 +51,13 @@ public class LevelEditor
 
     }
 
-    public void LoadContent(Texture2D spritesheet, ImGuiRenderer imGuiRenderer)
+    public void LoadContent()
     {
-        IntPtr imGuiTexId = imGuiRenderer.BindTexture(spritesheet);
-
-        _palette.Load(spritesheet, imGuiTexId);
     }
 
     public void Update(XnaVector2 mouseWorldPos)
     {
-        int activeTileId = _palette.selectedTileIndex;
+        int activeTileId = _palette.selectedTileId;
         if (ImGui.GetIO().WantCaptureMouse) return;
 
         _mouseWorldPos = mouseWorldPos;
@@ -184,7 +181,7 @@ public class LevelEditor
         ImGui.Spacing();
         _palette.DrawTilePaletteGui();
 
-        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _palette.selectedTileIndex);
+        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _palette.selectedTileId);
     }
 
     private void BrushModeButton(string label, BrushMode mode)

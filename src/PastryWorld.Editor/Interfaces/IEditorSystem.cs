@@ -8,7 +8,7 @@ public interface IEditorSystem
 {
     bool IsActive { get; set; }
     void ToggleMode();
-    void Update(GameTime gameTime, Matrix cameraMatrix);
+    void Update(GameTime gameTime, XnaRectangle destinationRect, int scale);
     void DrawWorld(SpriteBatch spriteBatch, XnaRectangle bounds, XnaMatrix viewMatrix, Texture2D pixel);
     void DrawUI(GameTime gameTime);
 }

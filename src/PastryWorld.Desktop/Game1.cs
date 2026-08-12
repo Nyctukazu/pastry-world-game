@@ -9,6 +9,9 @@ using PastryWorld.Engine;
 using PastryWorld.Editor;
 using PastryWorld.Editor.Level;
 using PastryWorld.Maps;
+using PastryWorld.Tools;
+using System;
+using System.Collections.Generic;
 
 namespace PastryWorld.Desktop;
 
@@ -23,8 +26,12 @@ public class Game1 : Game
     private MapData _mapData = new MapData();
     private Camera2D _camera;
     private Texture2D _pixel;
-    private Texture2D _tilesetPastryTown;
     private TileRegistry _tileRegistry;
+    private RenderTarget2D _nativeCanvas;
+    private Rectangle _destinationRect;
+    private int _scale;
+    private TilesetLoader _tilesetLoader;
+    private readonly Dictionary<int, Texture2D> _groupTextures = new();
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -48,17 +55,39 @@ public class Game1 : Game
         _tileRegistry = new TileRegistry();
 
         _editorSystem = new WorldEditorSystem(_imGuiRenderer, _camera, _mapData, _tileRegistry);
+        _nativeCanvas = new RenderTarget2D(GraphicsDevice, 640, 360);
         base.Initialize();
 
     }
 
     protected override void LoadContent()
     {
+        
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _pixel = new Texture2D(GraphicsDevice, 1, 1);
         _pixel.SetData([Color.White]);
-        _tilesetPastryTown = Content.Load<Texture2D>("Tilesets/pastry_world_cake_tileset");
-        _editorSystem.LoadContent(_tilesetPastryTown);
+
+        var loader = new TilesetLoader(GraphicsDevice);
+        var tilesets = loader.LoadAllTilesets(_tileRegistry);
+        _groupTextures.Clear();
+        
+        foreach (var (group, texture) in tilesets)
+        {
+            Console.WriteLine($"[Game1] Processing loop for: {group.Name}");
+            
+            try 
+            {
+                IntPtr imGuiTextureId = _imGuiRenderer.BindTexture(texture);
+                _editorSystem.RegisterTilesetGroup(group, texture, imGuiTextureId);
+                _groupTextures[group.Id] = texture;
+                
+                Console.WriteLine($"[Game1] Successfully registered {group.Name}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Game1 ERROR] Failed to register {group.Name}: {ex.Message}");
+            }
+        }
     }
 
     protected override void Update(GameTime gameTime)
@@ -76,26 +105,51 @@ public class Game1 : Game
         }
         else
         {
-            _editorSystem.Update(gameTime, _camera.GetViewMatrix());
+            _editorSystem.Update(gameTime, _destinationRect, _scale);
         }
 
         base.Update(gameTime);
     }
 
+
     protected override void Draw(GameTime gameTime)
     {
+
+        GraphicsDevice.SetRenderTarget(_nativeCanvas);
+        GraphicsDevice.Clear(Color.CornflowerBlue);
+
         XnaMatrix viewMatrix = _camera.GetViewMatrix();
         XnaMatrix editorViewMatrix = _editorSystem.GetFinalViewMatrix(viewMatrix);
 
-        GraphicsDevice.Clear(Color.Transparent);
         _spriteBatch.Begin(
             samplerState: SamplerState.PointClamp,
             transformMatrix: editorViewMatrix    
         );
-        _mapRenderer.Draw(_spriteBatch, _mapData, _tileRegistry, _tilesetPastryTown);
-        _editorSystem.DrawWorld(_spriteBatch, GraphicsDevice.Viewport.Bounds, _camera.GetViewMatrix(), _pixel);
+
+        _mapRenderer.Draw(_spriteBatch, _mapData, _tileRegistry, _groupTextures);
+
+
+        _editorSystem.DrawWorld(_spriteBatch, _nativeCanvas.Bounds, viewMatrix, _pixel);
+
         _spriteBatch.End();
+
+        GraphicsDevice.SetRenderTarget(null);
+        GraphicsDevice.Clear(Color.Black);
+
+        int scaleX = GraphicsDevice.Viewport.Width / _nativeCanvas.Width;
+        int scaleY = GraphicsDevice.Viewport.Height / _nativeCanvas.Height;
+        _scale = Math.Max(1, Math.Min(scaleX, scaleY));
+
+        _destinationRect = Utilities.GetCenteredLetterboxRect(_nativeCanvas.Bounds, _scale, GraphicsDevice.Viewport);
+
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        _spriteBatch.Draw(_nativeCanvas, _destinationRect, Color.White);
+        _spriteBatch.End();
+
+
         _editorSystem.DrawUI(gameTime);
+
         base.Draw(gameTime);
     }
+
 }

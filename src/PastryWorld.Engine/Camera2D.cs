@@ -2,7 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace PastryWorld.Engine;
 /// <summary>
@@ -10,10 +12,10 @@ namespace PastryWorld.Engine;
 /// </summary>
 public class Camera2D
 {
-    private readonly Viewport _viewport;
+    private Viewport _viewport;
 
 
-    public Vector2 Position { get; set; }
+    public Vector2 Position { get; set; } = Vector2.Zero;
     public float Zoom { get; set; } = 1.0f;
     public float Rotation { get; set; } = 0.0f;
 
@@ -23,15 +25,20 @@ public class Camera2D
         Position = Vector2.Zero;
     }
 
+    public void UpdateViewport(Viewport viewport)
+    {
+        _viewport = viewport;
+    }
+
 
     /// <summary>
     /// Smoothly moves the camera toward a target position
     /// </summary>
     /// <param name="targetPosition">The destination coordinates in the game world.</param>
     /// <param name="lerpAmount">The interpolation factor between 0.0f and 1.0f</param>
-    public void Follow(Vector2 targetPosition, float lerpAmount = 0.1f)
+    public void Follow(XnaVector2 targetPosition, float lerpAmount = 0.1f)
     {
-        Position = Vector2.Lerp(Position, targetPosition, lerpAmount);
+        Position = XnaVector2.Lerp(Position, targetPosition, lerpAmount);
     }
 
     /// <summary>
@@ -40,25 +47,30 @@ public class Camera2D
     /// <returns></returns>
     public Matrix GetViewMatrix()
     {
-        return Matrix.CreateTranslation(new Vector3(-Position.X, -Position.Y, 0.0f))
+        XnaVector2 snappedPos = new XnaVector2(
+            MathF.Floor(Position.X),
+            MathF.Floor(Position.Y)
+        );
+
+        return Matrix.CreateTranslation(new XnaVector3(-snappedPos.X, -snappedPos.Y, 0.0f))
                 * Matrix.CreateRotationZ(Rotation)
                 * Matrix.CreateScale(Zoom, Zoom, 1.0f)
-                * Matrix.CreateTranslation(new Vector3(_viewport.Width * 0.5f, _viewport.Height * 0.5f, 0.0f));
+                * Matrix.CreateTranslation(new XnaVector3(_viewport.Width * 0.5f, _viewport.Height * 0.5f, 0.0f));
     }
 
-    public XnaVector2 CameraPosition(EditorCamera _camera, XnaMatrix cameraMatrix)
+
+    public XnaVector2 GetWorldMousePosition(Rectangle destinationRect, int scale)
     {
-        _camera.UpdateInput();
-
-        XnaMatrix finalCameraMatrix = cameraMatrix * _camera.GetViewMatrix();
-
         MouseState mouseState = Mouse.GetState();
-        XnaVector2 screenPos = new XnaVector2(mouseState.X, mouseState.Y);
 
-        XnaMatrix invertedCamera = XnaMatrix.Invert(finalCameraMatrix);
-        XnaVector2 worldPos = XnaVector2.Transform(screenPos, invertedCamera);
+        if (scale <= 0) scale = 1;
 
-        return worldPos;
+        float canvasX = (mouseState.X - destinationRect.X) / (float)scale;
+        float canvasY = (mouseState.Y - destinationRect.Y) / (float)scale;
+        Vector2 canvasMouse = new Vector2(canvasX, canvasY);
+
+        XnaMatrix invertedView = Matrix.Invert(GetViewMatrix());
+        return Vector2.Transform(canvasMouse, invertedView);
     }
 
 }

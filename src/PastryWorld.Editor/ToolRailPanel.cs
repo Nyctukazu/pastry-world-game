@@ -26,7 +26,7 @@ public class ToolRailPanel
     private AnimationEditor _animationTool;
     private const float RailWidth = 56f;
     private const float ButtonSize = 35f;
-    private const float PanelWidth = 260f;
+    private const float PanelWidth = 275f;
     private const float StatusBarHeight = 26f;
     private EditorStatusBar _statusBar = new EditorStatusBar(StatusBarHeight);
     private float PanelHeight;

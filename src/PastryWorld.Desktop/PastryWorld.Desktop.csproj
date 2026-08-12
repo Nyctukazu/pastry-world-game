@@ -45,10 +45,14 @@
     <ProjectReference Include="..\PastryWorld.Engine\PastryWorld.Engine.csproj" />
     <ProjectReference Include="..\PastryWorld.Editor\PastryWorld.Editor.csproj" />
     <ProjectReference Include="..\PastryWorld.Maps\PastryWorld.Maps.csproj" />
+    <ProjectReference Include="..\PastryWorld.Tools\PastryWorld.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-  <None Update="Data\Levels\**\*.json">
+  <None Update="Data\**\*.*">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Content\**\*.*">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
 </ItemGroup>

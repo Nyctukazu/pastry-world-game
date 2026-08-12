@@ -15,91 +15,15 @@ namespace PastryWorld.Editor.Level;
 public class TilePalette
 {
     private readonly TileRegistry _registry;
-    public List<TileGroup> Groups { get; } = new();
-    public Texture2D SheetTexture { get; private set; }
-    public IntPtr ImGuiTextureId { get; private set; }
-    public int selectedTileIndex {get; set; } = 0;
+    public int selectedTileId {get; set; } = -1;
     private int _selectedGroupIndex = 0;
+    private readonly List<(TileGroup group, Texture2D Texture, IntPtr TextureId)> _availableGroups = new();
+    public TileDefinition? SelectedTile { get; private set; }
+    public int SelectedTileId { get; private set; }
 
     public TilePalette(TileRegistry registry)
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-    }
-    /// <summary>
-    /// Slices a spritesheet, organizes tiles into TileGroups, and registers them into the master TileRegistry.
-    /// </summary>
-    public void Load(Texture2D sheet, IntPtr imGuiTextureId, int tileSize = 16, int spacing = 1, int margin = 1)
-    {
-        SheetTexture = sheet;
-        ImGuiTextureId = imGuiTextureId;
-
-        Groups.Clear();
-        _registry.Clear();
-
-        var defaultGroup = new TileGroup
-        {
-            Id = 0,
-            Name = "General Terrain"
-        };
-
-        Groups.Add(defaultGroup);
-
-        int cols = (sheet.Width) / (tileSize + spacing);
-        int rows = (sheet.Height) / (tileSize + spacing);
-
-        int currentId = 0;
-        for (int r = 0; r < rows; r++)
-        {
-            for (int c = 0; c < cols; c++)
-            {
-                int srcX = margin + c * (tileSize + spacing);
-                int srcY = margin + r * (tileSize + spacing);
-
-                var tileDef = new TileDefinition
-                {
-                    Id = currentId,
-                    GroupId = defaultGroup.Id,
-                    Name = $"Tile #{currentId}",
-                    SourceX = srcX,
-                    SourceY = srcY,
-                    Width = tileSize,
-                    Height = tileSize,
-                    Collision = TileCollision.Passable,
-                    Role = TileRole.None
-                };
-
-                defaultGroup.Tiles.Add(tileDef);
-
-                _registry.RegisterTile(tileDef);
-
-                currentId++;
-            }
-        }
-    }
-    /// <summary>
-    /// Inspects a region of pixel data to check if it contains no visible graphics (100% transparent).
-    /// </summary>
-    private static bool IsTileEmpty(Color[] pixels, int sheetWidth, int srcX, int srcY, int width, int height)
-    {
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                int pixelIndex = (srcY + y) * sheetWidth + (srcX + x);
-
-                if (pixels[pixelIndex].A > 0)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public TileGroup GetGroup(int index)
-    {
-        if (index >= 0 && index < Groups.Count) return Groups[index];
-        return null;
     }
 
     public void DrawTilePaletteGui()
@@ -107,7 +31,8 @@ public class TilePalette
         ImGui.Text("Tileset Palette");
         ImGui.Separator();
 
-        if (Groups.Count == 0 || SheetTexture == null)
+
+        if (_availableGroups.Count == 0)
         {
             ImGui.TextDisabled("Palette content not loaded.");
             return;
@@ -115,15 +40,22 @@ public class TilePalette
 
 
 
-        string[] groupNames = Groups.Select(g => g.Name).ToArray();
-        if (ImGui.Combo("Group", ref _selectedGroupIndex, groupNames, groupNames.Length))
+        string[] groupNames = _availableGroups.Select(g => g.group.Name).ToArray();
+        Console.WriteLine($"[TilePalette] Drawing combo with {groupNames.Length} items: {string.Join(", ", groupNames)}");
+        if (ImGui.Combo("Tileset", ref _selectedGroupIndex, groupNames, groupNames.Length))
         {
-            // Reset tile selection or keep current selection when switching groups
+            var newGroup = _availableGroups[_selectedGroupIndex].group;
+            if (newGroup.Tiles.Count > 0)
+            {
+                SelectTile(newGroup.Tiles[0]);
+            }
         }
 
         ImGui.Separator();
 
-        TileGroup activeGroup = Groups[_selectedGroupIndex];
+        var (activeGroup, activeTexture, activeTextureId) = _availableGroups[_selectedGroupIndex];
+
+
         if (activeGroup.Tiles.Count == 0)
         {
             ImGui.TextDisabled("Group contain no tiles.");
@@ -135,16 +67,15 @@ public class TilePalette
         float itemSize = 32f;
         float padding = 6f;
 
-        // Get max right boundary inside the child container
         float maxRightX = ImGui.GetWindowPos().X + ImGui.GetContentRegionAvail().X;
 
-        float sheetW = SheetTexture?.Width ?? 1f;
-        float sheetH = SheetTexture?.Height ?? 1f;
+        float sheetW = activeTexture.Width;
+        float sheetH = activeTexture.Height;
 
         for (int i = 0; i < activeGroup.Tiles.Count; i++)
         {
             var tile = activeGroup.Tiles[i];
-            bool isSelected = (selectedTileIndex == tile.Id);
+            bool isSelected = SelectedTileId == tile.Id;
 
             if (isSelected)
             {
@@ -157,11 +88,11 @@ public class TilePalette
             ImVector2 uv0 = new ImVector2(tile.SourceX / sheetW, tile.SourceY / sheetH);
             ImVector2 uv1 = new ImVector2((tile.SourceX + tile.Width) / sheetW, (tile.SourceY + tile.Height) / sheetH);
 
-            bool clicked = ImGui.ImageButton($"tile_{tile.Id}", ImGuiTextureId, new ImVector2(itemSize, itemSize), uv0, uv1);
+            bool clicked = ImGui.ImageButton($"tile_{tile.Id}", activeTextureId, new ImVector2(itemSize, itemSize), uv0, uv1);
 
             if (clicked)
             {
-                selectedTileIndex = tile.Id;
+                SelectTile(tile);
             }
 
             if (ImGui.IsItemHovered())
@@ -186,7 +117,31 @@ public class TilePalette
             ImGui.PopID();
         }
 
-        ImGui.EndChild(); // End Scroll Region
+        ImGui.EndChild();
         }
+    }
+
+    public void AddGroup(TileGroup group, Texture2D texture, IntPtr imGuiTextureId)
+    {
+        _availableGroups.Add((group, texture, imGuiTextureId));
+        Console.WriteLine($"[TilePalette] Registered group '{group.Name}'. Total in palette: {_availableGroups.Count}");
+        if (_availableGroups.Count == 1 && group.Tiles.Count > 0)
+        {
+            SelectTile(group.Tiles[0]);
+        }
+    }
+
+    public void SelectTile(TileDefinition tile)
+    {
+        SelectedTile = tile;
+        selectedTileId = tile.Id;
+    }
+
+    public void Clear()
+    {
+        _availableGroups.Clear();
+        SelectedTile = null;
+        selectedTileId = -1;
+        _selectedGroupIndex = 0;
     }
 }

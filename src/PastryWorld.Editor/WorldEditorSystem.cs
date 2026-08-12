@@ -1,4 +1,5 @@
 using MonoGame.ImGuiNet;
+using ImGuiNET;
 using Microsoft.Xna.Framework;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
@@ -6,6 +7,7 @@ using PastryWorld.Editor.Interfaces;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
+using System.Linq;
 
 using PastryWorld;
 using PastryWorld.Editor.Level;
@@ -18,7 +20,6 @@ using PastryWorld.Core.Level;
 using System.Collections.Generic;
 using PastryWorld.Maps;
 using System.IO;
-using System.Linq;
 using System;
 using System.Reflection.Metadata.Ecma335;
 
@@ -40,7 +41,10 @@ public class WorldEditorSystem : IEditorSystem
     public bool IsActive { get; set; } = false;
     private Camera2D _camera;
     private EditorCamera _editorCamera;
+    private TilePalette _palette;
+    private readonly List<(TileGroup Group, Texture2D Texture, IntPtr ImGuiId)> _loadedTilesets = new();
     public float CurrentZoom => _editorCamera.Zoom;
+
 
     public WorldEditorSystem(ImGuiRenderer imGuiRenderer, Camera2D camera, MapData mapData, TileRegistry registry)
     {
@@ -52,26 +56,58 @@ public class WorldEditorSystem : IEditorSystem
         _command = new CommandManager();
         _mapData = mapData;
         _registry = registry;
-        _levelEditor = new LevelEditor(_mapData, _command, _registry);
+        _palette = new TilePalette(registry);
+
+        _levelEditor = new LevelEditor(_mapData, _command, _registry, _palette);
         _entityEditor = new EntityEditor();
         _objectEditor = new SmartObjectEditor();
         _animationEditor = new AnimationEditor();
+
         _toolRailPanel = new ToolRailPanel(_levelEditor, _entityEditor, _objectEditor, _animationEditor);
+        
         
     }
 
-    public void LoadContent(Texture2D spritesheetTexture)
+    public void LoadContent()
     {
-        _spritesheetTexture = spritesheetTexture;
-        _levelEditor.LoadContent(_spritesheetTexture, _imGuiRenderer);
+    }
+
+    public void RegisterTilesetGroup(TileGroup group, Texture2D texture, IntPtr imGuiTextureId)
+    {
+        _loadedTilesets.Add((group, texture, imGuiTextureId));
+
+        _palette.AddGroup(group, texture, imGuiTextureId);
+    }
+
+    public Texture2D? GetTextureForGroup(int groupId)
+    {
+        var match = _loadedTilesets.FirstOrDefault(t => t.Group.Id == groupId);
+        return match.Texture;
     }
 
     public void ToggleMode() => IsActive = !IsActive;
-    public void Update(GameTime gameTime, XnaMatrix cameraMatrix)
+    public void Update(GameTime gameTime, XnaRectangle destinationRect, int scale)
     {
         if (!IsActive) return;
 
-        XnaVector2 worldPos = _camera.CameraPosition(_editorCamera, cameraMatrix);
+        _editorCamera.UpdateInput(destinationRect, scale);
+        
+        if (ImGui.GetIO().WantCaptureMouse)
+        {
+            return;
+        }
+
+        XnaMatrix combinedViewMatrix = _camera.GetViewMatrix() * _editorCamera.GetViewMatrix();
+        XnaMatrix invertedView = XnaMatrix.Invert(combinedViewMatrix);
+
+        MouseState mouseState = Mouse.GetState();
+        if (scale <= 0) scale = 1;
+
+        float canvasX = (mouseState.X - destinationRect.X) / (float)scale;
+        float canvasY = (mouseState.Y - destinationRect.Y) / (float)scale;
+        XnaVector2 canvasMouse = new XnaVector2(canvasX, canvasY);
+
+        XnaVector2 worldPos = XnaVector2.Transform(canvasMouse, invertedView);
 
         _toolRailPanel.Update(worldPos);
     }
