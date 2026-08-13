@@ -41,7 +41,6 @@ public class TilePalette
 
 
         string[] groupNames = _availableGroups.Select(g => g.group.Name).ToArray();
-        Console.WriteLine($"[TilePalette] Drawing combo with {groupNames.Length} items: {string.Join(", ", groupNames)}");
         if (ImGui.Combo("Tileset", ref _selectedGroupIndex, groupNames, groupNames.Length))
         {
             var newGroup = _availableGroups[_selectedGroupIndex].group;
@@ -124,7 +123,6 @@ public class TilePalette
     public void AddGroup(TileGroup group, Texture2D texture, IntPtr imGuiTextureId)
     {
         _availableGroups.Add((group, texture, imGuiTextureId));
-        Console.WriteLine($"[TilePalette] Registered group '{group.Name}'. Total in palette: {_availableGroups.Count}");
         if (_availableGroups.Count == 1 && group.Tiles.Count > 0)
         {
             SelectTile(group.Tiles[0]);

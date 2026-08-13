@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace PastryWorld.Tools;
+namespace PastryWorld.Tools.DTO;
 
 public class TilesetConfigDto
 {

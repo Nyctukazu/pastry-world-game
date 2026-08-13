@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PastryWorld.Core.Level;
+using PastryWorld.Tools.DTO;
 using System.Text.RegularExpressions;
 
 namespace PastryWorld.Tools;

@@ -7,6 +7,7 @@ public class SmartObjectEditor
         public void DrawSmartObjectOptions()
     {
         ImGui.Text("Tileset browser goes here");
+        //EditorStatusBar.Draw();
     }
 
 }

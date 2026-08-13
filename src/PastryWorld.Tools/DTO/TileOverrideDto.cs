@@ -1,5 +1,5 @@
 
-namespace PastryWorld.Tools;
+namespace PastryWorld.Tools.DTO;
 
 public class TileOverrideDto
 {

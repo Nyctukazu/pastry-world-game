@@ -6,6 +6,7 @@ using ImVector4 = System.Numerics.Vector4;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using static System.Math;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 
 namespace PastryWorld.Editor;
@@ -27,31 +28,10 @@ public class EditorStatusBar
         int selectedTileId
     )
     {
-        var viewport = ImGui.GetMainViewport();
+        
+        barConfig();
 
-        ImGui.SetNextWindowPos(new ImVector2(
-            viewport.Pos.X,
-            viewport.Pos.Y + viewport.Size.Y - _statusBarHeight
-        ));
-
-        ImGui.SetNextWindowSize(new ImVector2(viewport.Size.X, _statusBarHeight));
-
-        ImGuiWindowFlags flags =
-            ImGuiWindowFlags.NoTitleBar |
-            ImGuiWindowFlags.NoResize |
-            ImGuiWindowFlags.NoMove |
-            ImGuiWindowFlags.NoScrollbar |
-            ImGuiWindowFlags.NoSavedSettings |
-            ImGuiWindowFlags.NoBringToFrontOnFocus;
-
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new ImVector2(10f, 4f));
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0f);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1f);
-
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, new ImVector4(0.08f, 0.08f, 0.10f, 1.0f));
-        ImGui.PushStyleColor(ImGuiCol.Border, new ImVector4(0.20f, 0.20f, 0.22f, 1.0f));
-
-        if (ImGui.Begin("###EditorStatusBar", flags))
+        if (ImGui.Begin("###EditorStatusBar", barFlags()))
         {
             int tileX = (int)Floor(mouseWorldPos.X / mapData.TileSize);
             int tileY = (int)Floor(mouseWorldPos.Y / mapData.TileSize);
@@ -101,6 +81,52 @@ public class EditorStatusBar
         ImGui.PopStyleVar(3);
     }
 
+    public static void Draw()
+    {
+        barConfig();
+
+        if (ImGui.Begin("###EditorStatusBar", barFlags()))
+        {
+          
+            DrawRightAlignedSection();
+            ImGui.End();
+        }
+        
+        ImGui.PopStyleColor(2);
+        ImGui.PopStyleVar(3);
+    }
+
+    private static void barConfig()
+    {
+        var viewport = ImGui.GetMainViewport();
+
+        ImGui.SetNextWindowPos(new ImVector2(
+            viewport.Pos.X,
+            viewport.Pos.Y + viewport.Size.Y - _statusBarHeight
+        ));
+
+        ImGui.SetNextWindowSize(new ImVector2(viewport.Size.X, _statusBarHeight));
+
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new ImVector2(10f, 4f));
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0f);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1f);
+
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, new ImVector4(0.08f, 0.08f, 0.10f, 1.0f));
+        ImGui.PushStyleColor(ImGuiCol.Border, new ImVector4(0.20f, 0.20f, 0.22f, 1.0f));
+    }
+
+    private static ImGuiWindowFlags barFlags()
+    {
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags.NoTitleBar |
+            ImGuiWindowFlags.NoResize |
+            ImGuiWindowFlags.NoMove |
+            ImGuiWindowFlags.NoScrollbar |
+            ImGuiWindowFlags.NoSavedSettings |
+            ImGuiWindowFlags.NoBringToFrontOnFocus;
+
+        return flags;
+    }
     private static void DrawRightAlignedSection(MapData mapData)
     {
         var io = ImGui.GetIO();
@@ -123,6 +149,17 @@ public class EditorStatusBar
         }
 
         DrawSeparator();
+
+        ImGui.TextColored(new ImVector4(0.4f, 0.8f, 1.0f, 1.0f), fpsText);
+    }
+
+    private static void DrawRightAlignedSection()
+    {
+        var io = ImGui.GetIO();
+        string fpsText = $"{io.Framerate: 0} FPS";
+        float rightSectionWidth = ImGui.CalcTextSize(fpsText).X + 60f;
+
+        ImGui.SameLine(ImGui.GetWindowWidth() - rightSectionWidth);
 
         ImGui.TextColored(new ImVector4(0.4f, 0.8f, 1.0f, 1.0f), fpsText);
     }
