@@ -22,6 +22,7 @@ using PastryWorld.Maps;
 using System.IO;
 using System;
 using System.Reflection.Metadata.Ecma335;
+using PastryWorld.Core.Animation;
 
 
 namespace PastryWorld.Editor;
@@ -46,7 +47,12 @@ public class WorldEditorSystem : IEditorSystem
     public float CurrentZoom => _editorCamera.Zoom;
 
 
-    public WorldEditorSystem(ImGuiRenderer imGuiRenderer, Camera2D camera, MapData mapData, TileRegistry registry)
+    public WorldEditorSystem(ImGuiRenderer imGuiRenderer, 
+                            Camera2D camera, 
+                            MapData mapData, 
+                            TileRegistry registry,
+                            AnimationSet animationSet
+                            )
     {
         _imGuiRenderer = imGuiRenderer;
         
@@ -61,7 +67,8 @@ public class WorldEditorSystem : IEditorSystem
         _levelEditor = new LevelEditor(_mapData, _command, _registry, _palette);
         _entityEditor = new EntityEditor();
         _objectEditor = new SmartObjectEditor();
-        _animationEditor = new AnimationEditor();
+        _animationEditor = new AnimationEditor(animationSet, _command);
+        
 
         _toolRailPanel = new ToolRailPanel(_levelEditor, _entityEditor, _objectEditor, _animationEditor);
         

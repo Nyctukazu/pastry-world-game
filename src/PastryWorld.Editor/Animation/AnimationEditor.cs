@@ -6,13 +6,18 @@ using ImVector4 = System.Numerics.Vector4;
 using ImVector2 = System.Numerics.Vector2;
 using System;
 using Microsoft.Xna.Framework;
+using PastryWorld.Editor.Commands;
+using PastryWorld.Tools;
 
 namespace PastryWorld.Editor.Animation;
 
 
 public class AnimationEditor
 {
-  
+    private readonly AnimationManager _animationManager;
+    private readonly AnimationSet _animationSet;
+    private readonly JsonAnimationSerializer _animSerializer;
+    private string _animationSetName;
     private static readonly FacingDirection[] ClockwiseOrder =
     {
         FacingDirection.North, FacingDirection.East, FacingDirection.South, FacingDirection.West
@@ -22,9 +27,12 @@ public class AnimationEditor
     private readonly AnimationTimelinePanel _timeline;
     private SpriteManifest _activeManifest;
     private string _newPartName = "";
-    public AnimationEditor()
+    public AnimationEditor(AnimationSet animSet, CommandManager command)
     {
+        _animSerializer = new JsonAnimationSerializer();
         _timeline = new AnimationTimelinePanel();
+        _animationSet = animSet;
+        _animationManager = new AnimationManager(animSet, command, _animSerializer, _animationSetName);
     }
 
     public void SetAnimationSet(AnimationSet set)
@@ -33,10 +41,20 @@ public class AnimationEditor
         _currentDirection = FacingDirection.South;
         _timeline.SetClip(_set.GetActiveClip(_currentDirection));
     }
+
+    public void Draw()
+    {
+        
+    }
+
+    public void Update()
+    {
+        
+    }
     
     public void SetSpriteManifest(SpriteManifest manifest) => _activeManifest = manifest;
 
-    private void Draw()
+    private void DrawGui()
     {
         if (_set == null)
         {
@@ -96,25 +114,70 @@ public class AnimationEditor
 
     private void DrawSetHeader()
     {
+        DrawFileDropDown();
         ImGui.InputText("##name", ref _set.Name, 64);
         ImGui.SameLine();
         ImGui.Text("Animation Name");
 
-        if (ImGui.Button("Save"))
+        if (ImGui.Button("Save (Ctrl+S)"))
         {
-            
-        }
-
-        ImGui.SameLine();
-        if (ImGui.Button("Load Existing"))
-        {
-            
+            _animationManager.SaveCurrentAnimation();
         }
 
         ImGui.SameLine();
         if (ImGui.Button("+ New"))
         {
             SetAnimationSet(new AnimationSet());
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button("Refresh List"))
+        {
+            _animationManager.RefreshAnimationList();
+        }
+
+        if (!string.IsNullOrEmpty(_animationManager.StatusMessage))
+        {
+            ImVector4 color = _animationManager.IsStatusError
+                ? new ImVector4(1f, 0.4f, 0.4f, 1f)
+                : new ImVector4(0.4f, 1f, 0.4f, 1f);
+
+            ImGui.TextColored(color, _animationManager.StatusMessage);
+        }
+    }
+
+    private void DrawFileDropDown()
+    {
+        string currentAnimationName = _animationManager.AnimationName ?? "";
+
+        if (ImGui.InputText("Animation Name", ref currentAnimationName, 64))
+        {
+            _animationManager.AnimationName = currentAnimationName;
+            _animationSet.Name = currentAnimationName;
+        }
+
+        if (_animationManager.AvailableAnimationFiles.Count > 0)
+        {
+            string currentPreview = _animationManager.SelectedAnimationIndex < _animationManager.AvailableAnimationFiles.Count
+                ? _animationManager.AvailableAnimationFiles[_animationManager.SelectedAnimationIndex]
+                : "Select Animation...";
+
+            if (ImGui.BeginCombo("Load Existing", currentPreview))
+            {
+                for (int i = 0; i < _animationManager.AvailableAnimationFiles.Count; i++)
+                {
+                    bool isSelected = (_animationManager.SelectedAnimationIndex == i);
+
+                    if (ImGui.Selectable(_animationManager.AvailableAnimationFiles[i], isSelected))
+                    {
+                        _animationManager.SelectedAnimationIndex = i;
+                        _animationManager.LoadAnimation(_animationManager.AvailableAnimationFiles[i]);
+                    }
+
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+                ImGui.EndCombo();
+            }
         }
     }
 
@@ -216,7 +279,7 @@ public class AnimationEditor
     public void DrawAnimationOptions()
     {
 
-        Draw();
+        DrawGui();
         EditorStatusBar.Draw();
     }
 }

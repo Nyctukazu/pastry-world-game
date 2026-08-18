@@ -71,4 +71,15 @@ public class AnimationSet
         }
         yield return SingleClip;
     }
+
+    public void CopyFrom(AnimationSet other)
+    {
+        if (other == null) return;
+
+        Name = other.Name;
+        Mode = other.Mode;
+        PartNames = other.PartNames;
+        ClipsByDirection = other.ClipsByDirection;
+        SingleClip = other.SingleClip;
+    }
 }

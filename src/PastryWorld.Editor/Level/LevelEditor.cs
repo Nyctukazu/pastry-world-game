@@ -112,6 +112,7 @@ public class LevelEditor
                 for (int i = 0; i < _mapManager.AvailableMapFiles.Count; i++)
                 {
                     bool isSelected = (_mapManager.SelectedMapIndex == i);
+
                     if (ImGui.Selectable(_mapManager.AvailableMapFiles[i], isSelected))
                     {
                         _mapManager.SelectedMapIndex = i;

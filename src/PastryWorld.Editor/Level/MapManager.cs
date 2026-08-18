@@ -81,7 +81,7 @@ public class MapManager
         }
         catch (Exception ex)
         {
-            SetStatus($"Save Fauled: {ex.Message}", isError: true);
+            SetStatus($"Save Failed: {ex.Message}", isError: true);
         }
     }
 
@@ -111,7 +111,7 @@ public class MapManager
     public void CreateNewMap(string newName = "NewMap", int width = 50, int height = 50)
     {
         MapName = newName;
-        _mapData.CopyFrom(new Core.Level.MapData(width, height) { Name = newName });
+        _mapData.CopyFrom(new MapData(width, height) { Name = newName });
         _commandManager.Clear();
         SetStatus($"Created new map: {newName}", isError: false);
     }

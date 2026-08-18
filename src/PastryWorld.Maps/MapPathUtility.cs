@@ -41,12 +41,5 @@ public static class MapPathUtility
 
         return Path.Combine(GetUserMapsDirectory(), sanitizedName);
     }
-    /// <summary>
-    /// Checks if a map file exists in the user's maps directory.
-    /// </summary>
-    public static bool MapExists(string mapName)
-    {
-        string fullPath = GetFullPathForMap(mapName);
-        return File.Exists(fullPath);
-    }
+
 }

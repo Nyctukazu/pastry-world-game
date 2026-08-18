@@ -1,0 +1,322 @@
+{
+  "Name": "NewAnimation",
+  "Mode": "Directional",
+  "PartNames": [
+    "Head",
+    "Torso",
+    "LeftArm",
+    "RightArm",
+    "Ears",
+    "Tail",
+    "Weapon",
+    "Accessory",
+    "Expression"
+  ],
+  "ClipsByDirection": {
+    "North": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Loop": true,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Visible": true,
+          "Keyframes": {}
+        }
+      ]
+    },
+    "East": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Loop": true,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Visible": true,
+          "Keyframes": {}
+        }
+      ]
+    },
+    "South": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Loop": true,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Visible": true,
+          "Keyframes": {}
+        }
+      ]
+    },
+    "West": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Loop": true,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Visible": true,
+          "Keyframes": {}
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Visible": true,
+          "Keyframes": {}
+        }
+      ]
+    }
+  },
+  "SingleClip": {
+    "Name": "New Animation Set",
+    "FrameCount": 8,
+    "Loop": true,
+    "Layers": [
+      {
+        "PartName": "Head",
+        "SortOrder": 0,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "Torso",
+        "SortOrder": 1,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "LeftArm",
+        "SortOrder": 2,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "RightArm",
+        "SortOrder": 3,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "Ears",
+        "SortOrder": 4,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "Tail",
+        "SortOrder": 5,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "Weapon",
+        "SortOrder": 6,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "Accessory",
+        "SortOrder": 7,
+        "Visible": true,
+        "Keyframes": {}
+      },
+      {
+        "PartName": "Expression",
+        "SortOrder": 8,
+        "Visible": true,
+        "Keyframes": {}
+      }
+    ]
+  }
+}

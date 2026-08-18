@@ -12,11 +12,13 @@ using PastryWorld.Maps;
 using PastryWorld.Tools;
 using System;
 using System.Collections.Generic;
+using PastryWorld.Core.Animation;
 
 namespace PastryWorld.Desktop;
 
 public class Game1 : Game
 {   
+    private AnimationSet _animationSet = new AnimationSet();
     private TileMapRenderer _mapRenderer;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
@@ -54,7 +56,7 @@ public class Game1 : Game
         _mapRenderer = new TileMapRenderer();
         _tileRegistry = new TileRegistry();
 
-        _editorSystem = new WorldEditorSystem(_imGuiRenderer, _camera, _mapData, _tileRegistry);
+        _editorSystem = new WorldEditorSystem(_imGuiRenderer, _camera, _mapData, _tileRegistry, _animationSet);
         _nativeCanvas = new RenderTarget2D(GraphicsDevice, 640, 360);
         base.Initialize();
 
