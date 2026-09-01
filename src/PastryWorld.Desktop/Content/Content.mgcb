@@ -13,6 +13,14 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Effects/BlendEffects.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/processorParam:Defines=
+/processorParam:Version=3.8.5.0
+/build:Effects/BlendEffects.fx
+
 #begin Tilesets/pastry_world_tileset.png
 /importer:TextureImporter
 /processor:TextureProcessor

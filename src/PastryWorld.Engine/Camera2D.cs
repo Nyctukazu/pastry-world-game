@@ -30,17 +30,6 @@ public class Camera2D
         _viewport = viewport;
     }
 
-
-    /// <summary>
-    /// Smoothly moves the camera toward a target position
-    /// </summary>
-    /// <param name="targetPosition">The destination coordinates in the game world.</param>
-    /// <param name="lerpAmount">The interpolation factor between 0.0f and 1.0f</param>
-    public void Follow(XnaVector2 targetPosition, float lerpAmount = 0.1f)
-    {
-        Position = XnaVector2.Lerp(Position, targetPosition, lerpAmount);
-    }
-
     /// <summary>
     /// Computes the Transformation Matrix passed to SpriteBatch.Begin()
     /// </summary>
@@ -59,14 +48,14 @@ public class Camera2D
     }
 
 
-    public XnaVector2 GetWorldMousePosition(Rectangle destinationRect, int scale)
+    public XnaVector2 GetWorldMousePosition(Rectangle destinationRect, float scale)
     {
         MouseState mouseState = Mouse.GetState();
 
-        if (scale <= 0) scale = 1;
+        if (scale <= 0f) scale = 1f;
 
-        float canvasX = (mouseState.X - destinationRect.X) / (float)scale;
-        float canvasY = (mouseState.Y - destinationRect.Y) / (float)scale;
+        float canvasX = (mouseState.X - destinationRect.X) / scale;
+        float canvasY = (mouseState.Y - destinationRect.Y) / scale;
         Vector2 canvasMouse = new Vector2(canvasX, canvasY);
 
         XnaMatrix invertedView = Matrix.Invert(GetViewMatrix());

@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework.Graphics;
 using PastryWorld.Editor.Level;
 using PastryWorld.Editor.Entity;
 using PastryWorld.Editor.Animation;
+using Microsoft.Xna.Framework;
+using PastryWorld.Engine;
+using System;
 
 
 namespace PastryWorld.Editor;
@@ -20,6 +23,8 @@ namespace PastryWorld.Editor;
 public class ToolRailPanel
 {
     private EditorTool _activeTool = EditorTool.None;
+    public EditorTool ActiveTool => _activeTool;
+    public bool IsAnimationToolActive => _activeTool == EditorTool.AnimationEditor;
     private LevelEditor _levelTool;
     private EntityEditor _entityTool;
     private SmartObjectEditor _smartObjectTool;
@@ -30,19 +35,23 @@ public class ToolRailPanel
     private const float StatusBarHeight = 26f;
     private EditorStatusBar _statusBar = new EditorStatusBar(StatusBarHeight);
     private float PanelHeight;
+    private EditorCamera _editorCamera;
     
     public ToolRailPanel(LevelEditor level, 
                         EntityEditor entity, 
                         SmartObjectEditor smartObject, 
-                        AnimationEditor animation)
+                        AnimationEditor animation,
+                        EditorCamera editorCamera)
     {
         _levelTool = level;
         _entityTool = entity;
         _smartObjectTool = smartObject;
         _animationTool = animation;
+        _editorCamera = editorCamera;
+        _editorCamera.SaveCameraPosition(_activeTool.ToString());
     }
 
-    public void Update(XnaVector2 worldPos)
+    public void Update(GameTime gameTime, XnaVector2 worldPos)
     {
         switch (_activeTool)
         {
@@ -56,6 +65,7 @@ public class ToolRailPanel
   
                 break;
             case EditorTool.AnimationEditor:
+                _animationTool.UpdateWorld(gameTime, worldPos);
 
                 break;
         }
@@ -75,6 +85,7 @@ public class ToolRailPanel
 
                 break;
             case EditorTool.AnimationEditor:
+                _animationTool.DrawWorld(spriteBatch, visibleWorldBounds, pixel);
 
                 break;
         }
@@ -113,17 +124,18 @@ public class ToolRailPanel
 
     private void RailButton(EditorTool tool, string label)
     {
+
         bool isActive = _activeTool == tool;
 
         if (isActive)
         {
             ImGui.PushStyleColor(ImGuiCol.Button, new ImVector4(0.25f, 0.55f, 0.9f, 1f));
-
         }
 
         if (ImGui.Button(label, new ImVector2(ButtonSize, ButtonSize)))
         {
-            _activeTool = isActive ? EditorTool.None : tool;
+            EditorTool newTool = isActive ? EditorTool.None : tool;
+            SwitchTool(newTool);
         }
 
         if (isActive)
@@ -132,6 +144,18 @@ public class ToolRailPanel
         }
 
         ImGui.Spacing();
+    }
+
+    private void SwitchTool(EditorTool newTool)
+    {
+        if (newTool == _activeTool) return;
+        _editorCamera.SaveCameraPosition(_activeTool.ToString());
+        _activeTool = newTool;
+
+        if (_editorCamera.TryLoadCameraPosition(_activeTool.ToString(), out PositionModel saved))
+        {
+            _editorCamera.SnapTo(saved.Position, saved.Zoom);
+        }
     }
 
     private void DrawFlyoutPanel()

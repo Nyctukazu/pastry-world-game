@@ -15,11 +15,10 @@ namespace PastryWorld.Editor.Level;
 public class TilePalette
 {
     private readonly TileRegistry _registry;
-    public int selectedTileId {get; set; } = -1;
     private int _selectedGroupIndex = 0;
     private readonly List<(TileGroup group, Texture2D Texture, IntPtr TextureId)> _availableGroups = new();
     public TileDefinition? SelectedTile { get; private set; }
-    public int SelectedTileId { get; private set; }
+    public int SelectedTileId => SelectedTile?.Id ?? -1;
 
     public TilePalette(TileRegistry registry)
     {
@@ -62,62 +61,64 @@ public class TilePalette
         }
 
         if (ImGui.BeginChild("TilePaletteScrollArea", new ImVector2(0, 0), ImGuiChildFlags.Borders))
-    {
-        float itemSize = 32f;
-        float padding = 6f;
-
-        float maxRightX = ImGui.GetWindowPos().X + ImGui.GetContentRegionAvail().X;
-
-        float sheetW = activeTexture.Width;
-        float sheetH = activeTexture.Height;
-
-        for (int i = 0; i < activeGroup.Tiles.Count; i++)
         {
-            var tile = activeGroup.Tiles[i];
-            bool isSelected = SelectedTileId == tile.Id;
+            float itemSize = 32f;
+            float padding = 6f;
 
-            if (isSelected)
+            float maxRightX = ImGui.GetWindowPos().X + ImGui.GetContentRegionAvail().X;
+
+            float sheetW = activeTexture.Width;
+            float sheetH = activeTexture.Height;
+
+            for (int i = 0; i < activeGroup.Tiles.Count; i++)
             {
-                ImGui.PushStyleColor(ImGuiCol.Button, new ImVector4(0.2f, 0.6f, 1.0f, 0.8f));
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ImVector4(0.3f, 0.7f, 1.0f, 1.0f));
+                var tile = activeGroup.Tiles[i];
+                bool isSelected = SelectedTileId == tile.Id;
+
+                if (isSelected)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Button, new ImVector4(0.2f, 0.6f, 1.0f, 0.8f));
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new ImVector4(0.3f, 0.7f, 1.0f, 1.0f));
+                }
+
+                ImGui.PushID(tile.Id);
+
+                ImVector2 uv0 = new ImVector2(tile.SourceX / sheetW, tile.SourceY / sheetH);
+                ImVector2 uv1 = new ImVector2((tile.SourceX + tile.Width) / sheetW, (tile.SourceY + tile.Height) / sheetH);
+
+                bool clicked = ImGui.ImageButton($"tile_{tile.Id}", activeTextureId, new ImVector2(itemSize, itemSize), uv0, uv1);
+
+                if (clicked)
+                {
+                    SelectTile(tile);
+                }
+
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip($"{tile.Name} (ID: #{tile.Id})\nCollision: {tile.Collision}\nRole: {tile.Role}");
+                }
+
+                if (isSelected)
+                {
+                    ImGui.PopStyleColor(2);
+                }
+
+                float lastButtonRight = ImGui.GetItemRectMax().X;
+                float nextButtonRight = lastButtonRight + padding + itemSize;
+
+                // Wrap to next line if the next button exceeds the scroll region width
+                if (i + 1 < activeGroup.Tiles.Count && nextButtonRight < maxRightX)
+                {
+                    ImGui.SameLine(0, padding);
+                }
+
+                ImGui.PopID();
             }
 
-            ImGui.PushID(tile.Id);
-
-            ImVector2 uv0 = new ImVector2(tile.SourceX / sheetW, tile.SourceY / sheetH);
-            ImVector2 uv1 = new ImVector2((tile.SourceX + tile.Width) / sheetW, (tile.SourceY + tile.Height) / sheetH);
-
-            bool clicked = ImGui.ImageButton($"tile_{tile.Id}", activeTextureId, new ImVector2(itemSize, itemSize), uv0, uv1);
-
-            if (clicked)
-            {
-                SelectTile(tile);
-            }
-
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.SetTooltip($"{tile.Name} (ID: #{tile.Id})\nCollision: {tile.Collision}\nRole: {tile.Role}");
-            }
-
-            if (isSelected)
-            {
-                ImGui.PopStyleColor(2);
-            }
-
-            float lastButtonRight = ImGui.GetItemRectMax().X;
-            float nextButtonRight = lastButtonRight + padding + itemSize;
-
-            // Wrap to next line if the next button exceeds the scroll region width
-            if (i + 1 < activeGroup.Tiles.Count && nextButtonRight < maxRightX)
-            {
-                ImGui.SameLine(0, padding);
-            }
-
-            ImGui.PopID();
+       
         }
-
+        
         ImGui.EndChild();
-        }
     }
 
     public void AddGroup(TileGroup group, Texture2D texture, IntPtr imGuiTextureId)
@@ -132,14 +133,12 @@ public class TilePalette
     public void SelectTile(TileDefinition tile)
     {
         SelectedTile = tile;
-        selectedTileId = tile.Id;
     }
 
     public void Clear()
     {
         _availableGroups.Clear();
         SelectedTile = null;
-        selectedTileId = -1;
         _selectedGroupIndex = 0;
     }
 }

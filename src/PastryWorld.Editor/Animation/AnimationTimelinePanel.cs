@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using PastryWorld.Core.Animation;
 using ImVector4 = System.Numerics.Vector4;
+using ImVector2 = System.Numerics.Vector2;
 
 namespace PastryWorld.Editor.Animation;
 
@@ -14,6 +16,7 @@ public class AnimationTimelinePanel
     private int _currentFrame;
     private bool _isPlaying;
     private float _playbackTimer;
+    private int _draggedLayerIndex = -1;
 
     public bool OnionSkinEnabled = true;
     public int OnionFramesBefore = 1;
@@ -127,21 +130,54 @@ public class AnimationTimelinePanel
     private void DrawLayerGrid()
     {
         ImGui.Text("Layers");
-        foreach (var layer in _clip.Layers)
+        
+        var sorted = new List<PartLayer>(_clip.Layers);
+        sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
+        for (int i = 0; i < sorted.Count; i++)
         {
+            var layer = sorted[i];
             ImGui.PushID(layer.PartName);
+
             ImGui.Checkbox("##vis", ref layer.Visible);
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(90);
-            ImGui.TextUnformatted(Truncate(layer.PartName, 10));
+
+            ImGui.Selectable(Truncate(layer.PartName, 10), i == _draggedLayerIndex,
+                ImGuiSelectableFlags.None, new ImVector2(90, 0));
+
+            if (ImGui.IsItemActive())
+            {
+                _draggedLayerIndex = i;
+                float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
+
+                if (dragDy < -10f && i > 0)
+                {
+                    (sorted[i], sorted[i - 1]) = (sorted[i - 1], sorted[i]);
+                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+                }
+                else if (dragDy > 10f && i < sorted.Count - 1)
+                {
+                    (sorted[i], sorted[i + 1]) = (sorted[i + 1], sorted[i]);
+                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+                }
+            }
 
             for (int f = 0; f < _clip.FrameCount; f++)
             {
                 ImGui.SameLine();
                 DrawFrameCell(layer, f);
             }
-
             ImGui.PopID();
+        }
+
+        if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
+        {
+            _draggedLayerIndex = -1;
+        }
+
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            sorted[i].SortOrder = i;
         }
 
         if (ImGui.Button("+ Add Layer"))

@@ -31,9 +31,11 @@ public class Game1 : Game
     private TileRegistry _tileRegistry;
     private RenderTarget2D _nativeCanvas;
     private Rectangle _destinationRect;
-    private int _scale;
-    private TilesetLoader _tilesetLoader;
+    private float _scale = 1f;
+    private const int BaseCanvasHeight = 360;
+    private bool _resizePending;
     private readonly Dictionary<int, Texture2D> _groupTextures = new();
+    private Effect _blendEffects;
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -45,6 +47,8 @@ public class Game1 : Game
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
 
+        Window.ClientSizeChanged += (_, _) => _resizePending = true;
+
     }
 
     protected override void Initialize()
@@ -52,14 +56,38 @@ public class Game1 : Game
         _imGuiRenderer = new ImGuiRenderer(this);
         _imGuiRenderer.RebuildFontAtlas();
 
-        _camera = new Camera2D(GraphicsDevice.Viewport);
+        RecreateNativeCanvas();
+
+        _camera = new Camera2D(new Viewport(0, 0, _nativeCanvas.Width, _nativeCanvas.Height));
         _mapRenderer = new TileMapRenderer();
         _tileRegistry = new TileRegistry();
 
         _editorSystem = new WorldEditorSystem(_imGuiRenderer, _camera, _mapData, _tileRegistry, _animationSet);
-        _nativeCanvas = new RenderTarget2D(GraphicsDevice, 640, 360);
+        
         base.Initialize();
 
+    }
+
+    private void RecreateNativeCanvas()
+    {
+        int windowWidth = Math.Max(1, Window.ClientBounds.Width);
+        int windowHeight = Math.Max(1, Window.ClientBounds.Height);
+
+        float aspect = windowWidth / (float)windowHeight;
+        int newWidth = Math.Max(1, (int)MathF.Round(BaseCanvasHeight * aspect));
+
+        if (_nativeCanvas != null && _nativeCanvas.Width == newWidth && _nativeCanvas.Height == BaseCanvasHeight)
+        {
+            _resizePending = false;
+            return;
+        }
+
+        _nativeCanvas?.Dispose();
+        _nativeCanvas = new RenderTarget2D(GraphicsDevice, newWidth, BaseCanvasHeight);
+
+        _camera?.UpdateViewport(new Viewport(0, 0, _nativeCanvas.Width, _nativeCanvas.Height));
+
+        _resizePending = false;
     }
 
     protected override void LoadContent()
@@ -68,6 +96,11 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _pixel = new Texture2D(GraphicsDevice, 1, 1);
         _pixel.SetData([Color.White]);
+        _blendEffects = Content.Load<Effect>("Effects/BlendEffects");
+        _blendEffects.Parameters["MatrixTransform"].SetValue(
+            Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 1)
+        );
+        _editorSystem.LoadContent();
 
         var loader = new TilesetLoader(GraphicsDevice);
         var tilesets = loader.LoadAllTilesets(_tileRegistry);
@@ -94,6 +127,10 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
+        if (_resizePending)
+        {
+            RecreateNativeCanvas();
+        }
         KeyboardState keyState = Keyboard.GetState();
         if (keyState.IsKeyDown(Keys.F1) && _previousKeyboardState.IsKeyUp(Keys.F1))
         {
@@ -128,9 +165,11 @@ public class Game1 : Game
             transformMatrix: editorViewMatrix    
         );
 
-        _mapRenderer.Draw(_spriteBatch, _mapData, _tileRegistry, _groupTextures);
-
-
+        if (!_editorSystem.IsAnimationToolActive)
+        {
+            _mapRenderer.Draw(_spriteBatch, _mapData, _tileRegistry, _groupTextures);
+        }
+        
         _editorSystem.DrawWorld(_spriteBatch, _nativeCanvas.Bounds, viewMatrix, _pixel);
 
         _spriteBatch.End();
@@ -138,11 +177,16 @@ public class Game1 : Game
         GraphicsDevice.SetRenderTarget(null);
         GraphicsDevice.Clear(Color.Black);
 
-        int scaleX = GraphicsDevice.Viewport.Width / _nativeCanvas.Width;
-        int scaleY = GraphicsDevice.Viewport.Height / _nativeCanvas.Height;
-        _scale = Math.Max(1, Math.Min(scaleX, scaleY));
+        _destinationRect = GraphicsDevice.Viewport.Bounds;
+        _scale = GraphicsDevice.Viewport.Height / (float)_nativeCanvas.Height;
 
-        _destinationRect = Utilities.GetCenteredLetterboxRect(_nativeCanvas.Bounds, _scale, GraphicsDevice.Viewport);
+        int destWidth = (int)MathF.Round(_nativeCanvas.Width * _scale);
+        int destHeight = (int)MathF.Round(_nativeCanvas.Height * _scale);
+
+        int destX = (GraphicsDevice.Viewport.Width - destWidth) / 2;
+        int destY = (GraphicsDevice.Viewport.Height - destHeight) / 2;
+
+        _destinationRect = new Rectangle(destX, destY, destWidth, destHeight);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
         _spriteBatch.Draw(_nativeCanvas, _destinationRect, Color.White);

@@ -57,7 +57,7 @@ public class LevelEditor
 
     public void Update(XnaVector2 mouseWorldPos)
     {
-        int activeTileId = _palette.selectedTileId;
+        int activeTileId = _palette.SelectedTileId;
         if (ImGui.GetIO().WantCaptureMouse) return;
 
         _mouseWorldPos = mouseWorldPos;
@@ -182,7 +182,7 @@ public class LevelEditor
         ImGui.Spacing();
         _palette.DrawTilePaletteGui();
 
-        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _palette.selectedTileId);
+        EditorStatusBar.Draw(_mapData, _mouseWorldPos, _brush, _palette.SelectedTileId);
     }
 
     private void BrushModeButton(string label, BrushMode mode)

@@ -9,14 +9,14 @@ namespace PastryWorld.Core.Animation;
 public class AnimationSet
 {
     public string Name = "New Animation Set";
-    public AnimationMode Mode = AnimationMode.Directional;
+    public AnimationMode Mode { get; set; } = AnimationMode.Directional;
 
-    public List<string> PartNames = new()
+    public List<string> PartNames { get; private set; } = new()
     {
         "Head", "Torso", "LeftArm", "RightArm", "Ears", "Tail", "Weapon", "Accessory", "Expression"
     };
 
-    public Dictionary<FacingDirection, AnimationClip> ClipsByDirection = new();
+    public Dictionary<FacingDirection, AnimationClip> ClipsByDirection { get; private set; }= new();
     public AnimationClip SingleClip;
 
     public AnimationSet()
@@ -78,8 +78,12 @@ public class AnimationSet
 
         Name = other.Name;
         Mode = other.Mode;
-        PartNames = other.PartNames;
-        ClipsByDirection = other.ClipsByDirection;
-        SingleClip = other.SingleClip;
+        PartNames = new List<string>(other.PartNames);
+        ClipsByDirection = new Dictionary<FacingDirection, AnimationClip>();
+        foreach (var kvp in other.ClipsByDirection)
+        {
+            ClipsByDirection[kvp.Key] = kvp.Value.Clone();
+        }
+        SingleClip = other.SingleClip.Clone();
     }
 }
