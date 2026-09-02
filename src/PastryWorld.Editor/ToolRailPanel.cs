@@ -85,7 +85,7 @@ public class ToolRailPanel
 
                 break;
             case EditorTool.AnimationEditor:
-                _animationTool.DrawWorld(spriteBatch, visibleWorldBounds, pixel);
+                _animationTool.Draw(spriteBatch, visibleWorldBounds, pixel);
 
                 break;
         }

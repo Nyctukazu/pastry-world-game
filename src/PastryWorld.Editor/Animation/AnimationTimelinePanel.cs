@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using PastryWorld.Core.Animation;

@@ -1,0 +1,299 @@
+{
+  "Mode": "SingleFacing",
+  "PartNames": [
+    "Head",
+    "Torso",
+    "LeftArm",
+    "RightArm",
+    "Ears",
+    "Tail",
+    "Weapon",
+    "Accessory",
+    "Expression",
+    "vd"
+  ],
+  "ClipsByDirection": {
+    "North": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "vd",
+          "SortOrder": 9,
+          "Keyframes": {},
+          "Visible": true
+        }
+      ],
+      "Loop": true
+    },
+    "East": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "vd",
+          "SortOrder": 9,
+          "Keyframes": {},
+          "Visible": true
+        }
+      ],
+      "Loop": true
+    },
+    "South": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "vd",
+          "SortOrder": 9,
+          "Keyframes": {},
+          "Visible": true
+        }
+      ],
+      "Loop": true
+    },
+    "West": {
+      "Name": "New Animation Set",
+      "FrameCount": 8,
+      "Layers": [
+        {
+          "PartName": "Head",
+          "SortOrder": 0,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Torso",
+          "SortOrder": 1,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "LeftArm",
+          "SortOrder": 2,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "RightArm",
+          "SortOrder": 3,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Ears",
+          "SortOrder": 4,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Tail",
+          "SortOrder": 5,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Weapon",
+          "SortOrder": 6,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Accessory",
+          "SortOrder": 7,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "Expression",
+          "SortOrder": 8,
+          "Keyframes": {},
+          "Visible": true
+        },
+        {
+          "PartName": "vd",
+          "SortOrder": 9,
+          "Keyframes": {},
+          "Visible": true
+        }
+      ],
+      "Loop": true
+    }
+  },
+  "Name": "NewAnimation1",
+  "SingleClip": {
+    "Name": "New Animation Set",
+    "FrameCount": 8,
+    "Layers": [
+      {
+        "PartName": "vd",
+        "SortOrder": 9,
+        "Keyframes": {},
+        "Visible": true
+      }
+    ],
+    "Loop": true
+  }
+}

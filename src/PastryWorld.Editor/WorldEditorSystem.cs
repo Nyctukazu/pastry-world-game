@@ -40,6 +40,7 @@ public class WorldEditorSystem : IEditorSystem
     private readonly EntityEditor _entityEditor;
     private readonly SmartObjectEditor _objectEditor;
     private readonly AnimationEditor _animationEditor;
+    private readonly AnimationCompositeRenderer _compositeRenderer;
     private Texture2D _spritesheetTexture;
     public bool IsActive { get; set; } = false;
     private Camera2D _camera;
