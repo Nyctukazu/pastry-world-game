@@ -6,6 +6,6 @@ public class EntityEditor
     public void DrawEntityOptions()
     {
         ImGui.Text("Spawnable objects go here");
-        //EditorStatusBar.Draw();
+        EditorStatusBar.Draw();
     }
 }

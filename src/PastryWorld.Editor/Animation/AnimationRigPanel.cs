@@ -25,7 +25,7 @@ public class AnimationRigPanel
     public void DrawModeToggle()
     {
         bool directional = _editor.Set.Mode == AnimationMode.Directional;
-        if (ImGui.RadioButton("Directional (4-way)", directional))
+        if (ImGui.RadioButton("Directional", directional))
         {
             _editor.SetMode(AnimationMode.Directional);
         }
@@ -48,23 +48,47 @@ public class AnimationRigPanel
         {
             Rotate(-1);
         }
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Rotate Counter-Clockwise");
+        }
         
         ImGui.SameLine();
         if (ImGui.ArrowButton("##cw", ImGuiDir.Right))
         {
             Rotate(1);
         }
-
-        ImGui.SameLine();
-        ImGui.Text("  (rotates through N -> E -> S -> W)");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Rotate Clockwise");
+        }
 
         DirectionButton(FacingDirection.North, "N");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("North");
+        }
+
         ImGui.SameLine();
         DirectionButton(FacingDirection.East, "E");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("East");
+        }
+
         ImGui.SameLine();
         DirectionButton(FacingDirection.South, "S");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("South");
+        }
         ImGui.SameLine();
+
         DirectionButton(FacingDirection.West, "W");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("West");
+        }
     }
 
     public void DirectionButton(FacingDirection dir, string label)
@@ -101,7 +125,12 @@ public class AnimationRigPanel
     }
     public void DrawRigList()
     {
-        ImGui.Text("Rig Parts- (shared across all 4 directions)");
+        ImGui.Text("Rig Parts");
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Shared across all 4 directions");
+        }
+
         foreach (var part in _editor.Set.PartNames)
         {
             ImGui.BulletText(part);

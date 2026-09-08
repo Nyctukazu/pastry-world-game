@@ -52,13 +52,14 @@ public class AnimationManager
 
         AvailableAnimationFiles.AddRange(files);
 
-        if (!string.IsNullOrWhiteSpace(AnimationName))
+        if (AvailableAnimationFiles.Count > 0 && !string.IsNullOrWhiteSpace(AnimationName))
         {
             int index = AvailableAnimationFiles.IndexOf(AnimationName);
-            if (index >= 0)
-            {
-                SelectedAnimationIndex = index;
-            }
+            SelectedAnimationIndex = index >= 0 ? index : 0;
+        }
+        else
+        {
+            SelectedAnimationIndex = 0;
         }
     }
     public void SaveCurrentAnimation()

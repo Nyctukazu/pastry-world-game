@@ -11,7 +11,7 @@ public class AnimationSet
     public string Name = "New Animation Set";
     public AnimationMode Mode { get; set; } = AnimationMode.Directional;
 
-    public List<string> PartNames { get; private set; } = new()
+    public List<string> PartNames { get; set; } = new()
     {
         "Head", "Torso", "LeftArm", "RightArm", "Ears", "Tail", "Weapon", "Accessory", "Expression"
     };
@@ -47,6 +47,7 @@ public class AnimationSet
     {
         if (PartNames.Contains(partName)) return;
         PartNames.Add(partName);
+        Console.WriteLine("A new part has been added!: " + partName);
 
         foreach (var clip in AllClips())
         {

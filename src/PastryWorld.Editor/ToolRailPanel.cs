@@ -11,6 +11,7 @@ using PastryWorld.Editor.Animation;
 using Microsoft.Xna.Framework;
 using PastryWorld.Engine;
 using System;
+using System.Diagnostics;
 
 
 namespace PastryWorld.Editor;
@@ -32,6 +33,7 @@ public class ToolRailPanel
     private const float RailWidth = 56f;
     private const float ButtonSize = 35f;
     private const float PanelWidth = 275f;
+    private const float GoldenRatio = 0.618f;
     private const float StatusBarHeight = 26f;
     private EditorStatusBar _statusBar = new EditorStatusBar(StatusBarHeight);
     private float PanelHeight;
@@ -95,6 +97,23 @@ public class ToolRailPanel
         DrawRail();
         if (_activeTool != EditorTool.None)
             DrawFlyoutPanel();
+
+        switch (_activeTool)
+        {
+            case EditorTool.TileEditor:
+
+                break;
+            case EditorTool.EntityEditor:
+
+                break;
+            case EditorTool.SmartObjectEditor:
+
+                break;
+            case EditorTool.AnimationEditor:
+                DrawControllerPanel();
+                break;
+        }
+            
     }
 
     private void DrawRail()
@@ -186,6 +205,43 @@ public class ToolRailPanel
             case EditorTool.AnimationEditor:
                 _animationTool.DrawAnimationOptions();
                 break;
+        }
+
+        ImGui.End();
+    }
+
+    private void DrawControllerPanel()
+    {
+
+        var io = ImGui.GetIO();
+        float posX = RailWidth + PanelWidth;
+        
+        float width = io.DisplaySize.X - posX;
+
+        float defaultHeight = io.DisplaySize.Y * GoldenRatio * GoldenRatio - StatusBarHeight;
+        float defaultPosY = io.DisplaySize.Y - defaultHeight - StatusBarHeight;
+
+        ImGui.SetNextWindowPos(new ImVector2(posX, defaultPosY), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new ImVector2(width, defaultHeight), ImGuiCond.Always);
+
+        ImGuiWindowFlags flags = ImGuiWindowFlags.NoTitleBar
+            | ImGuiWindowFlags.NoMove
+            | ImGuiWindowFlags.NoCollapse
+            | ImGuiWindowFlags.HorizontalScrollbar
+            | ImGuiWindowFlags.NoResize;
+
+        ImGui.Begin("##Controller", flags);
+
+        float height = ImGui.GetWindowHeight();
+
+        switch (_activeTool)
+        {
+            
+            case EditorTool.AnimationEditor:
+                _animationTool.DrawTimelinePanel(width, height);
+                break;
+            
+        
         }
 
         ImGui.End();

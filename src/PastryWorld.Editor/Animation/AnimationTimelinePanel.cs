@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using PastryWorld.Core.Animation;
 using ImVector4 = System.Numerics.Vector4;
 using ImVector2 = System.Numerics.Vector2;
+using PastryWorld.Tools;
 
 namespace PastryWorld.Editor.Animation;
 
@@ -16,13 +17,15 @@ public class AnimationTimelinePanel
     private float _playbackTimer;
     private int _draggedLayerIndex = -1;
 
-    public bool OnionSkinEnabled = true;
+    public bool OnionSkinEnabled = false;
     public int OnionFramesBefore = 1;
     public int OnionFramesAfter = 1;
 
     public string SelectedLayer { get; private set; }
     public int SelectedFrame { get; private set; }
     public int CurrentFrame => _currentFrame;
+    private float panelHeight = 0;
+    private float panelWidth = 0;
 
     public void SetClip(AnimationClip clip)
     {
@@ -51,8 +54,10 @@ public class AnimationTimelinePanel
         }
     }
 
-    public void Draw()
+    public void Draw(float width, float height)
     {
+        panelWidth = width;
+        panelHeight = height;
         if (_clip == null)
         {
             ImGui.Text("No clip loaded.");
@@ -68,6 +73,9 @@ public class AnimationTimelinePanel
 
     private void DrawTransport()
     {
+        float lineWidth = 380.0f;
+        ImGuiUtilities.CenterCursorX(lineWidth, panelWidth);
+
         if (ImGui.Button(_isPlaying? "Pause" : "Play")) _isPlaying = !_isPlaying;
 
         ImGui.SameLine();
@@ -83,7 +91,7 @@ public class AnimationTimelinePanel
         }
 
         ImGui.SameLine();
-        ImGui.Text($"Frame {_currentFrame + 1}/{_clip.FrameCount}  @ {AnimationClip.Fps}fps (locked)");
+        ImGui.Text($"Frame {_currentFrame + 1}/{_clip.FrameCount}  @ {AnimationClip.Fps}fps");
 
         ImGui.SameLine();
         if (ImGui.Button(">"))
@@ -127,61 +135,148 @@ public class AnimationTimelinePanel
 
     private void DrawLayerGrid()
     {
-        ImGui.Text("Layers");
         
-        var sorted = new List<PartLayer>(_clip.Layers);
-        sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
-
-        for (int i = 0; i < sorted.Count; i++)
+        if (_clip.Layers.Count == 0)
         {
-            var layer = sorted[i];
-            ImGui.PushID(layer.PartName);
-
-            ImGui.Checkbox("##vis", ref layer.Visible);
-            ImGui.SameLine();
-
-            ImGui.Selectable(Truncate(layer.PartName, 10), i == _draggedLayerIndex,
-                ImGuiSelectableFlags.None, new ImVector2(90, 0));
-
-            if (ImGui.IsItemActive())
+            ImGui.TextDisabled("No layers yet.");
+            if (ImGui.Button("+ Add Layer"))
             {
-                _draggedLayerIndex = i;
-                float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
-
-                if (dragDy < -10f && i > 0)
+                _clip.Layers.Add(new PartLayer
                 {
-                    (sorted[i], sorted[i - 1]) = (sorted[i - 1], sorted[i]);
-                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
-                }
-                else if (dragDy > 10f && i < sorted.Count - 1)
-                {
-                    (sorted[i], sorted[i + 1]) = (sorted[i + 1], sorted[i]);
-                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
-                }
+                    PartName = "NewPart", SortOrder = _clip.Layers.Count
+                });
             }
+            return;
+        }
+
+        int columnCount = 1 + _clip.FrameCount;
+
+        ImGuiTableFlags flags = ImGuiTableFlags.ScrollX
+            | ImGuiTableFlags.ScrollY
+            | ImGuiTableFlags.BordersInnerV
+            | ImGuiTableFlags.RowBg
+            | ImGuiTableFlags.SizingFixedFit
+            | ImGuiTableFlags.NoSavedSettings;
+
+        float tableHeight = ImGui.GetContentRegionAvail().Y - ImGui.GetFrameHeightWithSpacing();
+
+        if (ImGui.BeginTable("###LayerFrameTable", columnCount, flags, new ImVector2(0, tableHeight)))
+        {
+            ImGui.TableSetupScrollFreeze(1, 1);
+
+            ImGui.TableSetupColumn("Layers", ImGuiTableColumnFlags.WidthFixed, 110f);
+            for (int f = 0; f < _clip.FrameCount; f++)
+            {
+                ImGui.TableSetupColumn($"##col_f{f}", ImGuiTableColumnFlags.WidthFixed, 16f);
+
+            }
+
+            ImGui.TableNextRow(ImGuiTableRowFlags.Headers);
+
+            ImGui.TableSetColumnIndex(0);
+            ImGui.TextDisabled("Layers");
 
             for (int f = 0; f < _clip.FrameCount; f++)
             {
-                ImGui.SameLine();
-                DrawFrameCell(layer, f);
+                ImGui.TableSetColumnIndex(f + 1);
+                DrawRulerCell(f);
             }
-            ImGui.PopID();
-        }
 
-        if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
-        {
-            _draggedLayerIndex = -1;
-        }
+            var sorted = new List<PartLayer>(_clip.Layers);
+            sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
 
-        for (int i = 0; i < sorted.Count; i++)
-        {
-            sorted[i].SortOrder = i;
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                var layer = sorted[i];
+                ImGui.TableNextRow();
+                ImGui.PushID(layer.PartName);
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Checkbox("##vis", ref layer.Visible);
+                ImGui.SameLine();
+                ImGui.Selectable(Truncate(layer.PartName, 10), i == _draggedLayerIndex, 
+                    ImGuiSelectableFlags.None, new ImVector2(80, 0));
+
+                if (ImGui.IsItemActive())
+                {
+                    _draggedLayerIndex = i;
+                    float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
+
+                    if (dragDy < - 10f && i > 0)
+                    {
+                        (sorted[i], sorted[i - 1]) = (sorted[i - 1], sorted[i]);
+                        ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+
+                    }
+                    else if (dragDy > 10f && i < sorted.Count - 1)
+                    {
+                        (sorted[i], sorted[i + 1]) = (sorted[i + 1], sorted[i]);
+                        ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+                    }
+                }
+
+                for (int f = 0; f < _clip.FrameCount; f++)
+                {
+                    ImGui.TableSetColumnIndex(f + 1);
+                    DrawFrameCell(layer, f);
+                }
+
+                ImGui.PopID();
+            }
+
+            if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
+                _draggedLayerIndex = -1;
+
+            for (int i = 0; i < sorted.Count; i++)
+                sorted[i].SortOrder = i;
+
+            ImGui.EndTable();
         }
 
         if (ImGui.Button("+ Add Layer"))
         {
             _clip.Layers.Add(new PartLayer { PartName = "NewPart", SortOrder = _clip.Layers.Count });
         }
+    }
+    
+    private void DrawRulerCell(int f)
+    {
+        int frameNumber = f + 1;
+        ImGui.PushID($"ruler_f_{f}");
+
+        ImVector2 cellSize = new ImVector2(16, 16);
+        ImVector2 pos = ImGui.GetCursorScreenPos();
+        var drawList = ImGui.GetWindowDrawList();
+
+        bool clicked = ImGui.InvisibleButton("##ruler_cell", cellSize);
+        bool isHovered = ImGui.IsItemHovered();
+        bool isPlayhead = (f == _currentFrame);
+
+        if (clicked)
+        {
+            _currentFrame = f;
+            _isPlaying = false;
+        }
+
+        if (isHovered)
+            drawList.AddRectFilled(pos, pos + cellSize, ImGui.ColorConvertFloat4ToU32(new ImVector4(1f, 1f, 1f, 0.2f)), 2f);
+        else if (isPlayhead)
+            drawList.AddRectFilled(pos, pos + cellSize, ImGui.ColorConvertFloat4ToU32(new ImVector4(0.2f, 0.8f, 0.9f, 0.25f)), 2f);
+
+        ImVector4 textColor = isHovered
+            ? new ImVector4(1f, 1f, 1f, 1f)
+            : isPlayhead
+                ? new ImVector4(0.2f, 0.8f, 0.9f, 1f)
+                : new ImVector4(0.6f, 0.6f, 0.6f, 1f);
+
+        string numStr = frameNumber.ToString();
+        ImVector2 textSize = ImGui.CalcTextSize(numStr);
+        ImVector2 textPos = pos + new ImVector2((cellSize.X - textSize.X) * 0.5f, (cellSize.Y - textSize.Y) * 0.5f);
+        drawList.AddText(textPos, ImGui.ColorConvertFloat4ToU32(textColor), numStr);
+
+        if (isHovered)
+            ImGui.SetTooltip($"Jump to Frame {frameNumber}");
+
+        ImGui.PopID();
     }
 
     private void DrawFrameCell(PartLayer layer, int frame)

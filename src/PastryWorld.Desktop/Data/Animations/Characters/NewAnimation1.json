@@ -1,5 +1,5 @@
 {
-  "Mode": "SingleFacing",
+  "Mode": "Directional",
   "PartNames": [
     "Head",
     "Torso",
@@ -10,7 +10,11 @@
     "Weapon",
     "Accessory",
     "Expression",
-    "vd"
+    "fdsf",
+    "12",
+    "dsa",
+    "fsa",
+    "dasd"
   ],
   "ClipsByDirection": {
     "North": {
@@ -68,12 +72,6 @@
         {
           "PartName": "Expression",
           "SortOrder": 8,
-          "Keyframes": {},
-          "Visible": true
-        },
-        {
-          "PartName": "vd",
-          "SortOrder": 9,
           "Keyframes": {},
           "Visible": true
         }
@@ -137,12 +135,6 @@
           "SortOrder": 8,
           "Keyframes": {},
           "Visible": true
-        },
-        {
-          "PartName": "vd",
-          "SortOrder": 9,
-          "Keyframes": {},
-          "Visible": true
         }
       ],
       "Loop": true
@@ -202,12 +194,6 @@
         {
           "PartName": "Expression",
           "SortOrder": 8,
-          "Keyframes": {},
-          "Visible": true
-        },
-        {
-          "PartName": "vd",
-          "SortOrder": 9,
           "Keyframes": {},
           "Visible": true
         }
@@ -271,12 +257,6 @@
           "SortOrder": 8,
           "Keyframes": {},
           "Visible": true
-        },
-        {
-          "PartName": "vd",
-          "SortOrder": 9,
-          "Keyframes": {},
-          "Visible": true
         }
       ],
       "Loop": true
@@ -286,14 +266,7 @@
   "SingleClip": {
     "Name": "New Animation Set",
     "FrameCount": 8,
-    "Layers": [
-      {
-        "PartName": "vd",
-        "SortOrder": 9,
-        "Keyframes": {},
-        "Visible": true
-      }
-    ],
+    "Layers": [],
     "Loop": true
   }
 }

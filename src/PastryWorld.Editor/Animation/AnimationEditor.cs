@@ -193,4 +193,9 @@ public class AnimationEditor
         _currentDirection = FacingDirection.South;
         _timeline.SetClip(_set.GetActiveClip(_currentDirection));
     }
+
+    public void DrawTimelinePanel(float width, float height)
+    {
+        _timeline.Draw(width, height);
+    }
 }
