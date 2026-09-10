@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+using ImVector4 = System.Numerics.Vector4;
 namespace PastryWorld.Core.Animation;
 
 public class PartLayer
@@ -8,6 +8,7 @@ public class PartLayer
     public int SortOrder { get; set; }
     public bool Visible = true;
     public Dictionary<int, PartKeyframe> Keyframes { get; private set; } = new();
+    public ImVector4 ColorLabel = new ImVector4(1f, 1f, 1f, 1f);
 
     public PartLayer Clone()
     {
@@ -16,6 +17,7 @@ public class PartLayer
             PartName = this.PartName,
             SortOrder = this.SortOrder,
             Visible = this.Visible,
+            ColorLabel = this.ColorLabel
         };
 
         foreach (var kvp in this.Keyframes)

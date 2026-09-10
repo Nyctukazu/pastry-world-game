@@ -6,6 +6,8 @@ using PastryWorld.Core.Animation;
 using ImVector4 = System.Numerics.Vector4;
 using ImVector2 = System.Numerics.Vector2;
 using PastryWorld.Tools;
+using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace PastryWorld.Editor.Animation;
 
@@ -16,6 +18,13 @@ public class AnimationTimelinePanel
     private bool _isPlaying;
     private float _playbackTimer;
     private int _draggedLayerIndex = -1;
+
+    private string _selectedLayerName;
+    private string _renamingLayer;
+    private bool _renameJustStarted;
+    private readonly byte[] _renameBuffer = new byte[64];
+    private readonly LayerPropertiesModal _layerPropsModal = new();
+    private readonly FramePropertiesModal _framePropsModal = new();
 
     public bool OnionSkinEnabled = false;
     public int OnionFramesBefore = 1;
@@ -32,6 +41,8 @@ public class AnimationTimelinePanel
         _clip = clip;
         _currentFrame = 0;
         _isPlaying = false;
+        _selectedLayerName = null;
+        _renamingLayer = null;
     }
 
     public void Tick(GameTime gameTime)
@@ -69,6 +80,8 @@ public class AnimationTimelinePanel
         DrawOnionSkinControl();
         ImGui.Separator();
         DrawLayerGrid();
+        _layerPropsModal.Draw();
+        _framePropsModal.Draw();
     }
 
     private void DrawTransport()
@@ -235,6 +248,195 @@ public class AnimationTimelinePanel
         if (ImGui.Button("+ Add Layer"))
         {
             _clip.Layers.Add(new PartLayer { PartName = "NewPart", SortOrder = _clip.Layers.Count });
+        }
+    }
+
+    private void DrawLayerNameCell(PartLayer layer, int rowIndex)
+    {
+        if (_renamingLayer == layer.PartName)
+        {
+            ImGui.SetNextItemWidth(90);
+            if (_renameJustStarted)
+            {
+                ImGui.SetKeyboardFocusHere();
+                _renameJustStarted = false;
+            }
+            bool enterPressed = ImGui.InputText("##rename", _renameBuffer, (uint)_renameBuffer.Length,
+                ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll);
+            bool lostFocus = ImGui.IsItemDeactivated();
+
+            if (enterPressed || lostFocus)
+            {
+                CommitRename(layer);
+            }
+            return;
+
+            bool isSelected = _selectedLayerName == layer.PartName;
+            ImGui.Selectable(Truncate(layer.PartName, 10), isSelected || rowIndex == _draggedLayerIndex,
+                ImGuiSelectableFlags.None, new ImVector2(90, 0));
+
+            if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+            {
+                StartRename(layer);
+            }
+
+            LayerContextMenu.Draw(layer, this, out bool wantProperties);
+            if (wantProperties)
+            {
+                _layerPropsModal.Open(layer);
+            }
+
+            if (ImGui.IsItemActivated())
+            {
+                SelectLayer(layer);
+            }
+
+            if (ImGui.IsItemActivated())
+            {
+                SelectLayer(layer);
+            }
+
+            if (ImGui.IsItemActive())
+            {
+                _draggedLayerIndex = rowIndex;
+                float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
+
+                var sorted = new List<PartLayer>(_clip.Layers);
+                sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
+                if (dragDy < -10f && rowIndex > 0)
+                {
+                    (sorted[rowIndex], sorted[rowIndex - 1]) = (sorted[rowIndex - 1], sorted[rowIndex]);
+                    for (int i = 0; i < sorted.Count; i++)
+                    {
+                        sorted[i].SortOrder = i;
+                    }
+                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+                }
+                else if (dragDy > 10f && rowIndex < sorted.Count - 1)
+                {
+                    (sorted[rowIndex], sorted[rowIndex + 1]) = (sorted[rowIndex + 1], sorted[rowIndex]);
+                    for (int i = 0; i < sorted.Count; i++) sorted[i].SortOrder = i;
+                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+                }
+            }
+        }
+    }
+
+    private void StartRename(PartLayer layer)
+    {
+        _renamingLayer = layer.PartName;
+        _renameJustStarted = true;
+        Array.Clear(_renameBuffer, 0, _renameBuffer.Length);
+        var bytes = Encoding.UTF8.GetBytes(layer.PartName ?? string.Empty);
+        Array.Copy(bytes, _renameBuffer, Math.Min(bytes.Length, _renameBuffer.Length - 1));
+    }
+
+    private void CommitRename(PartLayer layer)
+    {
+        string name = Encoding.UTF8.GetString(_renameBuffer).TrimEnd('\0');
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            if (_selectedLayerName == layer.PartName) _selectedLayerName = name;
+            layer.PartName = name;
+
+        }
+        _renamingLayer = null;
+    }
+
+    public void SelectLayer(PartLayer layer)
+    {
+        _selectedLayerName = layer?.PartName;
+    }
+
+    public void DuplicateLayer(PartLayer layer)
+    {
+        var clone = AnimationClipboard.Clone(layer);
+        clone.PartName = MakeUniqueName(clone.PartName);
+        InsertAfter(layer, clone);
+        _selectedLayerName = clone.PartName;
+    }
+
+    public void PasteLayerBelow(PartLayer anchor)
+    {
+        var pasted = AnimationClipboard.PasteAsNew();
+        if (pasted == null) return;
+
+        pasted.PartName = MakeUniqueName(pasted.PartName);
+        InsertAfter(anchor, pasted);
+        _selectedLayerName = pasted.PartName;
+
+    }
+
+    public void DeleteLayer(PartLayer layer)
+    {
+        if (layer == null) return;
+
+        _clip.Layers.Remove(layer);
+        if (_selectedLayerName == layer.PartName) _selectedLayerName = null;
+
+        var sorted = new List<PartLayer>(_clip.Layers);
+        sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            sorted[i].SortOrder = i;
+        }
+    }
+
+    private void InsertAfter(PartLayer anchor, PartLayer newLayer)
+    {
+        var sorted = new List<PartLayer>(_clip.Layers);
+        sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+        int idx = sorted.FindIndex(l => l.PartName == anchor.PartName);
+        sorted.Insert(idx + 1, newLayer);
+        _clip.Layers.Add(newLayer);
+        for (int i = 0; i < sorted.Count; i++)
+        {
+            sorted[i].SortOrder = i;
+        }
+    }
+
+    private String MakeUniqueName(string baseName)
+    {
+        string name = baseName;
+        int n = 1;
+        while (_clip.Layers.Exists(l => l.PartName == name))
+        {
+            name = $"{baseName} ({n++})";
+        }
+        return name;
+    }
+
+    private void HandleLayerShortcuts(List<PartLayer> sorted)
+    {
+        if (_renamingLayer != null) return;
+        if (ImGui.GetIO().WantTextInput) return;
+        var selected = sorted.Find(l => l.PartName == _selectedLayerName);
+        if (selected != null && ImGui.IsKeyPressed(ImGuiKey.F3, false))
+        {
+            _layerPropsModal.Open(selected);
+        }
+
+        if (selected == null) return;
+        
+        bool ctrl = ImGui.GetIO().KeyCtrl;
+
+        if (ctrl && ImGui.IsKeyPressed(ImGuiKey.C, false))
+        {
+            AnimationClipboard.Copy(selected);
+        }
+        else if (ctrl && ImGui.IsKeyPressed(ImGuiKey.V, false))
+        {
+            PasteLayerBelow(selected);
+        }
+        else if (ctrl && ImGui.IsKeyPressed(ImGuiKey.D, false))
+        {
+            DuplicateLayer(selected);
+        }
+        else if (ImGui.IsKeyPressed(ImGuiKey.Delete, false))
+        {
+            DeleteLayer(selected);
         }
     }
     

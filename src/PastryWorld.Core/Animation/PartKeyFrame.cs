@@ -16,9 +16,10 @@ public class PartKeyframe
     public bool Visible { get; set; } = true;
     public float ScaleX { get; set; } = 1f;
     public float ScaleY { get; set; } = 1f;
-    public byte Opacity { get; set; } = 255;
+    public float Opacity { get; set; } = 255;
     public string? TintColor { get; set; }
     public float TintStrength { get; set; }
+    public bool ChannelR = true, ChannelG = true, ChannelB = true, ChannelA = true;
     public BlendMode Blend { get; set; } = BlendMode.Normal;
     public int PaletteIndex { get; set; } = 0;
 
