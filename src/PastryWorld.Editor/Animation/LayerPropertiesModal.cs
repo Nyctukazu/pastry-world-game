@@ -6,7 +6,9 @@ using ImVector2 = System.Numerics.Vector2;
 using ImVector4 = System.Numerics.Vector4;
 
 namespace PastryWorld.Editor.Animation;
-
+/// <summary>
+/// Represents a modal dialog for editing the properties of a PartLayer, including its name and color label.
+/// </summary>
 public class LayerPropertiesModal
 {
     private const string PopupId = "Layer Properties###LayerPropsModal";

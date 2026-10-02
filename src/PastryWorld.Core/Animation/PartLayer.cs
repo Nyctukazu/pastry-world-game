@@ -7,7 +7,7 @@ public class PartLayer
     public string PartName { get; set; } = string.Empty;
     public int SortOrder { get; set; }
     public bool Visible = true;
-    public Dictionary<int, PartKeyframe> Keyframes { get; private set; } = new();
+    public Dictionary<int, PartKeyframe> Keyframes { get; set; } = new();
     public ImVector4 ColorLabel = new ImVector4(1f, 1f, 1f, 1f);
 
     public PartLayer Clone()

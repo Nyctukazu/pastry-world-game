@@ -60,12 +60,12 @@ public class AnimationFilePanel
 
     public void DrawFileDropDown()
     {
-        string currentAnimationName = _editor.Set.Name ?? "";
+        string currentAnimationName = _editor.AnimationSet.Name ?? "";
 
         if (ImGui.InputText("Animation Name", ref currentAnimationName, 64))
         {
-            _editor.Set.Name = currentAnimationName;
-            _editor.Set.Name = currentAnimationName;
+            _editor.AnimationSet.Name = currentAnimationName;
+            _editor.AnimationSet.Name = currentAnimationName;
         }
 
         if (_animationManager.AvailableAnimationFiles.Count > 0)

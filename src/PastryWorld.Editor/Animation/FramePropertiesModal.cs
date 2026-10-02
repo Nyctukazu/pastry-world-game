@@ -8,7 +8,9 @@ using ImVector2 = System.Numerics.Vector2;
 using ImVector4 = System.Numerics.Vector4;
 
 namespace PastryWorld.Editor.Animation;
-
+/// <summary>
+/// Represents a modal dialog for editing the properties of a specific frame within an animation clip, including opacity, blend mode, channel visibility, stretch, rotation, and z-index.
+/// </summary>
 public class FramePropertiesModal
 {
     private const string PopupId = "Frame Properties###FramePropsModal";
@@ -150,7 +152,9 @@ public class FramePropertiesModal
         ImGui.EndChild();
     }
  
-    /// <summary>Shows every layer's keyframe status (keyed / held / empty) and visibility at the current frame.</summary>
+    /// <summary>
+    /// Shows every layer's keyframe status (keyed / held / empty) and visibility at the current frame.
+    /// </summary>
     private void DrawFrameContentsPanel()
     {
         ImGui.TextDisabled("In this frame:");

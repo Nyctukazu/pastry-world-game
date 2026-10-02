@@ -4,7 +4,9 @@ using PastryWorld.Core.Animation;
 using PastryWorld.Editor.Animation;
 
 namespace PastryWorld.Editor.Animation;
-
+/// <summary>
+/// Provides a context menu for PartLayer objects within the animation timeline, allowing users to perform actions such as viewing properties, copying, pasting, duplicating, and deleting layers.
+/// </summary>
 public static class LayerContextMenu
 {
     public static void Draw(PartLayer layer, AnimationTimelinePanel panel, out bool propertiesRequested)

@@ -8,7 +8,7 @@ public class AnimationClip
     public string Name { get; set; } = "NewAnimation";
     public int FrameCount { get; set; } = 8;
     public bool Loop = true;
-    public List<PartLayer> Layers { get; private set; } = new();
+    public List<PartLayer> Layers { get; set; } = new();
 
     public AnimationClip Clone()
     {
@@ -25,5 +25,20 @@ public class AnimationClip
         }
 
         return copy;
+    }
+
+    public void CopyFrom(AnimationClip other)
+    {
+        if (other == null) return;
+
+        Name = other.Name;
+        FrameCount = other.FrameCount;
+        Loop = other.Loop;
+
+        Layers.Clear();
+        foreach (var layer in other.Layers)
+        {
+            Layers.Add(layer.Clone());
+        }
     }
 }

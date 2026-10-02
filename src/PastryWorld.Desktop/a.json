@@ -9,14 +9,7 @@
     "Tail",
     "Weapon",
     "Accessory",
-    "Expression",
-    "fdsf",
-    "12",
-    "dsa",
-    "fsa",
-    "dasd",
-    "dsad",
-    "heas"
+    "Expression"
   ],
   "ClipsByDirection": {
     "North": {
@@ -26,7 +19,52 @@
         {
           "PartName": "Head",
           "SortOrder": 0,
-          "Keyframes": {},
+          "Keyframes": {
+            "0": {
+              "SpriteId": "head_01",
+              "X": 5,
+              "Y": 3,
+              "Rotation": 45,
+              "FlipX": false,
+              "FlipY": false,
+              "Z_Index": 0,
+              "HoldFrames": 1,
+              "Visible": true,
+              "ScaleX": 1,
+              "ScaleY": 1,
+              "Opacity": 255,
+              "TintColor": null,
+              "TintStrength": 0,
+              "Blend": "Normal",
+              "PaletteIndex": 0,
+              "ChannelR": true,
+              "ChannelG": true,
+              "ChannelB": true,
+              "ChannelA": true
+            },
+            "4": {
+              "SpriteId": "head_02",
+              "X": 8,
+              "Y": 1,
+              "Rotation": 0,
+              "FlipX": true,
+              "FlipY": false,
+              "Z_Index": 0,
+              "HoldFrames": 1,
+              "Visible": true,
+              "ScaleX": 1,
+              "ScaleY": 1,
+              "Opacity": 255,
+              "TintColor": null,
+              "TintStrength": 0,
+              "Blend": "Normal",
+              "PaletteIndex": 0,
+              "ChannelR": true,
+              "ChannelG": true,
+              "ChannelB": true,
+              "ChannelA": true
+            }
+          },
           "Visible": true,
           "ColorLabel": {
             "X": 1,
@@ -122,78 +160,6 @@
         {
           "PartName": "Expression",
           "SortOrder": 8,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fdsf",
-          "SortOrder": 9,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "12",
-          "SortOrder": 10,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsa",
-          "SortOrder": 11,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fsa",
-          "SortOrder": 12,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dasd",
-          "SortOrder": 13,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsad",
-          "SortOrder": 14,
           "Keyframes": {},
           "Visible": true,
           "ColorLabel": {
@@ -317,85 +283,13 @@
             "Z": 1,
             "W": 1
           }
-        },
-        {
-          "PartName": "fdsf",
-          "SortOrder": 9,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "12",
-          "SortOrder": 10,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsa",
-          "SortOrder": 11,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fsa",
-          "SortOrder": 12,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dasd",
-          "SortOrder": 13,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsad",
-          "SortOrder": 14,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
         }
       ],
       "Loop": true
     },
     "South": {
       "Name": "New Animation Set",
-      "FrameCount": 7,
+      "FrameCount": 8,
       "Layers": [
         {
           "PartName": "Head",
@@ -496,159 +390,6 @@
         {
           "PartName": "Expression",
           "SortOrder": 8,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fdsf",
-          "SortOrder": 9,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "12",
-          "SortOrder": 10,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsa",
-          "SortOrder": 11,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fsa",
-          "SortOrder": 12,
-          "Keyframes": {
-            "2": {
-              "SpriteId": "",
-              "X": 0,
-              "Y": 0,
-              "Rotation": 0,
-              "FlipX": false,
-              "FlipY": false,
-              "Z_Index": 0,
-              "HoldFrames": 1,
-              "Visible": true,
-              "ScaleX": 1,
-              "ScaleY": 1,
-              "Opacity": 255,
-              "TintColor": null,
-              "TintStrength": 0,
-              "Blend": "Normal",
-              "PaletteIndex": 0,
-              "ChannelR": true,
-              "ChannelG": true,
-              "ChannelB": true,
-              "ChannelA": true
-            }
-          },
-          "Visible": true,
-          "ColorLabel": {
-            "X": 0.89215684,
-            "Y": 0,
-            "Z": 0,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dasd",
-          "SortOrder": 13,
-          "Keyframes": {
-            "6": {
-              "SpriteId": "",
-              "X": 0,
-              "Y": 0,
-              "Rotation": 0,
-              "FlipX": false,
-              "FlipY": false,
-              "Z_Index": 0,
-              "HoldFrames": 1,
-              "Visible": true,
-              "ScaleX": 1,
-              "ScaleY": 1,
-              "Opacity": 255,
-              "TintColor": null,
-              "TintStrength": 0,
-              "Blend": "Normal",
-              "PaletteIndex": 0,
-              "ChannelR": true,
-              "ChannelG": true,
-              "ChannelB": true,
-              "ChannelA": true
-            }
-          },
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsad",
-          "SortOrder": 14,
-          "Keyframes": {
-            "5": {
-              "SpriteId": "",
-              "X": 25,
-              "Y": -9,
-              "Rotation": 0,
-              "FlipX": false,
-              "FlipY": false,
-              "Z_Index": 0,
-              "HoldFrames": 1,
-              "Visible": true,
-              "ScaleX": 1,
-              "ScaleY": 1,
-              "Opacity": 255,
-              "TintColor": null,
-              "TintStrength": 0,
-              "Blend": "Normal",
-              "PaletteIndex": 0,
-              "ChannelR": true,
-              "ChannelG": true,
-              "ChannelB": true,
-              "ChannelA": true
-            }
-          },
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fds\u0000art",
-          "SortOrder": 15,
           "Keyframes": {},
           "Visible": true,
           "ColorLabel": {
@@ -772,84 +513,12 @@
             "Z": 1,
             "W": 1
           }
-        },
-        {
-          "PartName": "fdsf",
-          "SortOrder": 9,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "12",
-          "SortOrder": 10,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsa",
-          "SortOrder": 11,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "fsa",
-          "SortOrder": 12,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dasd",
-          "SortOrder": 13,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
-        },
-        {
-          "PartName": "dsad",
-          "SortOrder": 14,
-          "Keyframes": {},
-          "Visible": true,
-          "ColorLabel": {
-            "X": 1,
-            "Y": 1,
-            "Z": 1,
-            "W": 1
-          }
         }
       ],
       "Loop": true
     }
   },
-  "Name": "NewAnimation1",
+  "Name": "RoundTripTest",
   "SingleClip": {
     "Name": "New Animation Set",
     "FrameCount": 8,
@@ -953,78 +622,6 @@
       {
         "PartName": "Expression",
         "SortOrder": 8,
-        "Keyframes": {},
-        "Visible": true,
-        "ColorLabel": {
-          "X": 1,
-          "Y": 1,
-          "Z": 1,
-          "W": 1
-        }
-      },
-      {
-        "PartName": "fdsf",
-        "SortOrder": 9,
-        "Keyframes": {},
-        "Visible": true,
-        "ColorLabel": {
-          "X": 1,
-          "Y": 1,
-          "Z": 1,
-          "W": 1
-        }
-      },
-      {
-        "PartName": "12",
-        "SortOrder": 10,
-        "Keyframes": {},
-        "Visible": true,
-        "ColorLabel": {
-          "X": 1,
-          "Y": 1,
-          "Z": 1,
-          "W": 1
-        }
-      },
-      {
-        "PartName": "dsa",
-        "SortOrder": 11,
-        "Keyframes": {},
-        "Visible": true,
-        "ColorLabel": {
-          "X": 1,
-          "Y": 1,
-          "Z": 1,
-          "W": 1
-        }
-      },
-      {
-        "PartName": "fsa",
-        "SortOrder": 12,
-        "Keyframes": {},
-        "Visible": true,
-        "ColorLabel": {
-          "X": 1,
-          "Y": 1,
-          "Z": 1,
-          "W": 1
-        }
-      },
-      {
-        "PartName": "dasd",
-        "SortOrder": 13,
-        "Keyframes": {},
-        "Visible": true,
-        "ColorLabel": {
-          "X": 1,
-          "Y": 1,
-          "Z": 1,
-          "W": 1
-        }
-      },
-      {
-        "PartName": "dsad",
-        "SortOrder": 14,
         "Keyframes": {},
         "Visible": true,
         "ColorLabel": {

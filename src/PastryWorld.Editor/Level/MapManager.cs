@@ -9,7 +9,9 @@ using PastryWorld.Engine;
 using PastryWorld.Maps;
 
 namespace PastryWorld.Editor.Level;
-
+/// <summary>
+/// Manages the loading, saving, and creation of map data within the editor, providing functionality to handle map files, track the current map state, and manage user interactions related to maps.
+/// </summary>
 public class MapManager
 {
     private readonly MapData _mapData;

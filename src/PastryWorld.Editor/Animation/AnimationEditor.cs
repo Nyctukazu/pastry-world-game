@@ -20,7 +20,7 @@ namespace PastryWorld.Editor.Animation;
 public class AnimationEditor
 {
     private readonly AnimationManager _animationManager;
-    private readonly AnimationSet _animationSet;
+    private AnimationSet _animationSet;
     private readonly JsonAnimationSerializer _animSerializer;
     private readonly AnimationRigPanel _rigPanel;
     private readonly AnimationFilePanel _filePanel;
@@ -31,7 +31,6 @@ public class AnimationEditor
     {
         FacingDirection.North, FacingDirection.East, FacingDirection.South, FacingDirection.West
     };
-    private AnimationSet _set;
     private FacingDirection _currentDirection = FacingDirection.South;
     private readonly AnimationTimelinePanel _timeline;
     private SpriteManifest _activeManifest;
@@ -46,7 +45,6 @@ public class AnimationEditor
     public SpriteManifest ActiveManifest => _activeManifest;
     public Texture2D SpriteSheetTexture => _spriteSheetTexture;
     public Color CanvasBackgroundColor =>_canvasBackgroundColor;
-    public AnimationSet Set => _set;
 
     public AnimationEditor(AnimationSet animSet, CommandManager command)
     {
@@ -54,6 +52,7 @@ public class AnimationEditor
         _timeline = new AnimationTimelinePanel();
         _animationSet = animSet;
         _animationManager = new AnimationManager(animSet, command, _animSerializer, _animationSetName);
+        _animationManager.AnimationLoaded += RefreshTimelineClip;
         SetAnimationSet(animSet);
         _rigPanel = new AnimationRigPanel(ClockwiseOrder, this);
         _filePanel = new AnimationFilePanel(_animationManager, this);
@@ -64,6 +63,11 @@ public class AnimationEditor
         _animationManager.RefreshAnimationList();
     }
 
+    private void RefreshTimelineClip()
+    {
+        _timeline.SetClip(_animationSet.GetActiveClip(_currentDirection));
+    }
+
     public void Draw(SpriteBatch spriteBatch, XnaRectangle visibleWorldBounds, Texture2D pixel)
     {
         _compositeRenderer.DrawWorld(spriteBatch, visibleWorldBounds, pixel);
@@ -71,9 +75,9 @@ public class AnimationEditor
 
     public void SetAnimationSet(AnimationSet set)
     {
-        _set = set;
+        _animationSet = set;
         _currentDirection = FacingDirection.South;
-        _timeline.SetClip(_set.GetActiveClip(_currentDirection));
+        _timeline.SetClip(_animationSet.GetActiveClip(_currentDirection));
     }
     
     public void SetSpriteManifest(SpriteManifest manifest) => _activeManifest = manifest;
@@ -82,7 +86,7 @@ public class AnimationEditor
 
     public void UpdateWorld(GameTime gameTime, XnaVector2 worldMouse)
     {
-        if (_set == null) return;
+        if (_animationSet == null) return;
 
         _timeline.Tick(gameTime);
 
@@ -91,7 +95,7 @@ public class AnimationEditor
 
         if (leftJustPressed && _timeline.SelectedLayer != null)
         {
-            var clip = _set.GetActiveClip(_currentDirection);
+            var clip = _animationSet.GetActiveClip(_currentDirection);
             var layer = clip.Layers.Find(l => l.PartName == _timeline.SelectedLayer);
 
             if (layer != null && layer.Keyframes.TryGetValue(_timeline.SelectedFrame, out var kf))
@@ -114,17 +118,17 @@ public class AnimationEditor
     public void SetDirection(FacingDirection dir)
     {
         _currentDirection = dir;
-        _timeline.SetClip(_set.GetActiveClip(dir));
+        _timeline.SetClip(_animationSet.GetActiveClip(dir));
     }
     public void SetMode(AnimationMode mode)
     {
-        _set.Mode = mode;
-        _timeline.SetClip(_set.GetActiveClip(_currentDirection));
+        _animationSet.Mode = mode;
+        _timeline.SetClip(_animationSet.GetActiveClip(_currentDirection));
     }
     
     private void DrawGui()
     {
-        if (_set == null)
+        if (_animationSet == null)
         {
             ImGui.Text("No animation loaded.");
             if (ImGui.Button("+ New Animation"))
@@ -139,7 +143,7 @@ public class AnimationEditor
         _rigPanel.DrawModeToggle();
         ImGui.Separator();
 
-        if (_set.Mode == AnimationMode.Directional)
+        if (_animationSet.Mode == AnimationMode.Directional)
         {
             _rigPanel.DrawDirectionRotator();
         }
@@ -148,8 +152,6 @@ public class AnimationEditor
             _rigPanel.DrawSingleFacingNotice();
         }
 
-        ImGui.Separator();
-        _rigPanel.DrawRigList();
         ImGui.Separator();
         _palettePanel.DrawSpritePalette();
         ImGui.Separator();
@@ -189,9 +191,9 @@ public class AnimationEditor
 
     public void ResetToNewAnimation()
     {
-        _set.CopyFrom(new AnimationSet());
+        _animationSet.CopyFrom(new AnimationSet());
         _currentDirection = FacingDirection.South;
-        _timeline.SetClip(_set.GetActiveClip(_currentDirection));
+        _timeline.SetClip(_animationSet.GetActiveClip(_currentDirection));
     }
 
     public void DrawTimelinePanel(float width, float height)

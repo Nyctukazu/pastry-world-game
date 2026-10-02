@@ -24,7 +24,7 @@ public class AnimationRigPanel
     }
     public void DrawModeToggle()
     {
-        bool directional = _editor.Set.Mode == AnimationMode.Directional;
+        bool directional = _editor.AnimationSet.Mode == AnimationMode.Directional;
         if (ImGui.RadioButton("Directional", directional))
         {
             _editor.SetMode(AnimationMode.Directional);
@@ -122,27 +122,5 @@ public class AnimationRigPanel
     {
         ImGui.TextDisabled("Plays the same regardless of the character's actual facing.");
         ImGui.TextDisabled("Editing the one clip below.");
-    }
-    public void DrawRigList()
-    {
-        ImGui.Text("Rig Parts");
-        if (ImGui.IsItemHovered())
-        {
-            ImGui.SetTooltip("Shared across all 4 directions");
-        }
-
-        foreach (var part in _editor.Set.PartNames)
-        {
-            ImGui.BulletText(part);
-        }
-
-        ImGui.SetNextItemWidth(140);
-        ImGui.InputText("##newpart", ref _newPartName, 32);
-        ImGui.SameLine();
-        if (ImGui.Button("+ Add Part") && !string.IsNullOrWhiteSpace(_newPartName))
-        {
-            _editor.Set.AddPart(_newPartName);
-            _newPartName = "";
-        }
     }
 }

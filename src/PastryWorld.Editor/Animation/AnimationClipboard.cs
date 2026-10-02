@@ -19,13 +19,19 @@ public static class AnimationClipboard
         _copied = Clone(layer);
     }
  
-    /// <summary>Returns a fresh clone of whatever is currently on the clipboard, or null.</summary>
+    /// <summary>
+    /// Returns a fresh clone of whatever is currently on the clipboard, or null.
+    /// </summary>
     public static PartLayer PasteAsNew()
     {
         return _copied != null ? Clone(_copied) : null;
     }
  
-    /// <summary>Deep-clones a layer: name, color label, sort order, and every keyframe.</summary>
+    /// <summary>
+    /// Deep-clones a layer: name, color label, sort order, and every keyframe.
+    /// </summary>
+    /// <param name="src">The source layer to clone.</param>
+    /// <returns>A new instance of the cloned layer.</returns>
     public static PartLayer Clone(PartLayer src)
     {
         var clone = new PartLayer

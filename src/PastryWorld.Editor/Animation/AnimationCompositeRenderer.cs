@@ -28,14 +28,14 @@ public class AnimationCompositeRenderer
 
     public void DrawWorld(SpriteBatch spriteBatch, XnaRectangle visibleWorldBounds, Texture2D pixel)
     {
-        if (_editor.Set == null) return;
+        if (_editor.AnimationSet == null) return;
 
         spriteBatch.Draw(pixel, visibleWorldBounds, _editor.CanvasBackgroundColor);
         DrawAxes(spriteBatch, visibleWorldBounds, pixel);
 
         if (_editor.SpriteSheetTexture == null) return;
 
-        var clip = _editor.Set.GetActiveClip(_editor.CurrentDirection);
+        var clip = _editor.AnimationSet.GetActiveClip(_editor.CurrentDirection);
         int currentFrame = _timeline.CurrentFrame;
 
         if (_timeline.OnionSkinEnabled)

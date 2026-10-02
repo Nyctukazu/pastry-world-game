@@ -53,6 +53,7 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
+        //PastryWorld.Tools.RoundTripTest.Run();
         _imGuiRenderer = new ImGuiRenderer(this);
         _imGuiRenderer.RebuildFontAtlas();
 

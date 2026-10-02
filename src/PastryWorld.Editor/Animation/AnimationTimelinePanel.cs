@@ -10,7 +10,9 @@ using System.Text;
 using System.Runtime.CompilerServices;
 
 namespace PastryWorld.Editor.Animation;
-
+/// <summary>
+/// Represents the animation timeline panel in the editor, allowing users to view and edit animation clips, layers, and keyframes.
+/// </summary>
 public class AnimationTimelinePanel
 {
     private AnimationClip _clip;
@@ -35,7 +37,10 @@ public class AnimationTimelinePanel
     public int CurrentFrame => _currentFrame;
     private float panelHeight = 0;
     private float panelWidth = 0;
-
+    /// <summary>
+    /// Sets the current animation clip to be displayed and edited in the timeline panel.
+    /// </summary>
+    /// <param name="clip">The animation clip to display and edit</param>
     public void SetClip(AnimationClip clip)
     {
         _clip = clip;
@@ -44,7 +49,10 @@ public class AnimationTimelinePanel
         _selectedLayerName = null;
         _renamingLayer = null;
     }
-
+    /// <summary>
+    /// Updates the timeline panel, advancing the playback timer and current frame if the animation is playing.
+    /// </summary>
+    /// <param name="gameTime">The game time</param>
     public void Tick(GameTime gameTime)
     {
         if (!_isPlaying || _clip == null || _clip.FrameCount <= 0) return;
@@ -172,6 +180,10 @@ public class AnimationTimelinePanel
             | ImGuiTableFlags.NoSavedSettings;
 
         float tableHeight = ImGui.GetContentRegionAvail().Y - ImGui.GetFrameHeightWithSpacing();
+        var sorted = new List<PartLayer>(_clip.Layers);
+        sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
+        HandleLayerShortcuts(sorted);
 
         if (ImGui.BeginTable("###LayerFrameTable", columnCount, flags, new ImVector2(0, tableHeight)))
         {
@@ -195,9 +207,6 @@ public class AnimationTimelinePanel
                 DrawRulerCell(f);
             }
 
-            var sorted = new List<PartLayer>(_clip.Layers);
-            sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
-
             for (int i = 0; i < sorted.Count; i++)
             {
                 var layer = sorted[i];
@@ -206,33 +215,17 @@ public class AnimationTimelinePanel
                 ImGui.TableSetColumnIndex(0);
                 ImGui.Checkbox("##vis", ref layer.Visible);
                 ImGui.SameLine();
-                ImGui.Selectable(Truncate(layer.PartName, 10), i == _draggedLayerIndex, 
-                    ImGuiSelectableFlags.None, new ImVector2(80, 0));
 
-                if (ImGui.IsItemActive())
-                {
-                    _draggedLayerIndex = i;
-                    float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
-
-                    if (dragDy < - 10f && i > 0)
-                    {
-                        (sorted[i], sorted[i - 1]) = (sorted[i - 1], sorted[i]);
-                        ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
-
-                    }
-                    else if (dragDy > 10f && i < sorted.Count - 1)
-                    {
-                        (sorted[i], sorted[i + 1]) = (sorted[i + 1], sorted[i]);
-                        ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
-                    }
-                }
+                DrawLayerNameCell(layer, i);
+                float rowAlpha = layer.Visible ? 1f : 0.4f;
+                ImGui.PushStyleVar(ImGuiStyleVar.Alpha, rowAlpha);
 
                 for (int f = 0; f < _clip.FrameCount; f++)
                 {
                     ImGui.TableSetColumnIndex(f + 1);
                     DrawFrameCell(layer, f);
                 }
-
+                ImGui.PopStyleVar();
                 ImGui.PopID();
             }
 
@@ -270,55 +263,50 @@ public class AnimationTimelinePanel
                 CommitRename(layer);
             }
             return;
+        }
 
-            bool isSelected = _selectedLayerName == layer.PartName;
-            ImGui.Selectable(Truncate(layer.PartName, 10), isSelected || rowIndex == _draggedLayerIndex,
-                ImGuiSelectableFlags.None, new ImVector2(90, 0));
+        bool isSelected = _selectedLayerName == layer.PartName;
+        ImGui.Selectable(Truncate(layer.PartName, 10), isSelected || rowIndex == _draggedLayerIndex,
+            ImGuiSelectableFlags.None, new ImVector2(90, 0));
 
-            if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+        if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+        {
+            StartRename(layer);
+        }
+
+        LayerContextMenu.Draw(layer, this, out bool wantProperties);
+        if (wantProperties)
+        {
+            _layerPropsModal.Open(layer);
+        }
+
+        if (ImGui.IsItemActivated())
+        {
+            SelectLayer(layer);
+        }
+
+
+        if (ImGui.IsItemActive())
+        {
+            _draggedLayerIndex = rowIndex;
+            float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
+            var sorted = new List<PartLayer>(_clip.Layers);
+            sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
+
+            if (dragDy < -10f && rowIndex > 0)
             {
-                StartRename(layer);
-            }
-
-            LayerContextMenu.Draw(layer, this, out bool wantProperties);
-            if (wantProperties)
-            {
-                _layerPropsModal.Open(layer);
-            }
-
-            if (ImGui.IsItemActivated())
-            {
-                SelectLayer(layer);
-            }
-
-            if (ImGui.IsItemActivated())
-            {
-                SelectLayer(layer);
-            }
-
-            if (ImGui.IsItemActive())
-            {
-                _draggedLayerIndex = rowIndex;
-                float dragDy = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left).Y;
-
-                var sorted = new List<PartLayer>(_clip.Layers);
-                sorted.Sort((a, b) => a.SortOrder.CompareTo(b.SortOrder));
-
-                if (dragDy < -10f && rowIndex > 0)
+                (sorted[rowIndex], sorted[rowIndex - 1]) = (sorted[rowIndex - 1], sorted[rowIndex]);
+                for (int i = 0; i < sorted.Count; i++)
                 {
-                    (sorted[rowIndex], sorted[rowIndex - 1]) = (sorted[rowIndex - 1], sorted[rowIndex]);
-                    for (int i = 0; i < sorted.Count; i++)
-                    {
-                        sorted[i].SortOrder = i;
-                    }
-                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+                    sorted[i].SortOrder = i;
                 }
-                else if (dragDy > 10f && rowIndex < sorted.Count - 1)
-                {
-                    (sorted[rowIndex], sorted[rowIndex + 1]) = (sorted[rowIndex + 1], sorted[rowIndex]);
-                    for (int i = 0; i < sorted.Count; i++) sorted[i].SortOrder = i;
-                    ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
-                }
+                ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
+            }
+            else if (dragDy > 10f && rowIndex < sorted.Count - 1)
+            {
+                (sorted[rowIndex], sorted[rowIndex + 1]) = (sorted[rowIndex + 1], sorted[rowIndex]);
+                for (int i = 0; i < sorted.Count; i++) sorted[i].SortOrder = i;
+                ImGui.ResetMouseDragDelta(ImGuiMouseButton.Left);
             }
         }
     }
@@ -508,7 +496,16 @@ public class AnimationTimelinePanel
                                         Y = held.Y, 
                                         Rotation = held.Rotation,
                                         FlipX = held.FlipX,
-                                        FlipY = held.FlipY
+                                        FlipY = held.FlipY,
+                                        Opacity = held.Opacity,
+                                        Blend = held.Blend,
+                                        ChannelR = held.ChannelR,
+                                        ChannelG = held.ChannelG,
+                                        ChannelB = held.ChannelB,
+                                        ChannelA = held.ChannelA,
+                                        ScaleX = held.ScaleX,
+                                        ScaleY = held.ScaleY,
+                                        Z_Index = held.Z_Index
                                         }
                     : new PartKeyframe();
             }

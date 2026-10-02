@@ -29,6 +29,7 @@ public class AnimationManager
     public int SelectedAnimationIndex { get; set; } = 0;
     public string StatusMessage { get; private set; } = "";
     public bool IsStatusError { get; private set; } = false;
+    public event Action? AnimationLoaded;
 
     public AnimationManager(AnimationSet animationSet, CommandManager commandManager, JsonAnimationSerializer animSerializer, string animationName)
     {
@@ -87,6 +88,7 @@ public class AnimationManager
         }
     }
 
+
     public bool LoadAnimation(string animationName)
     {
         if (string.IsNullOrWhiteSpace(animationName)) return false;
@@ -100,6 +102,7 @@ public class AnimationManager
             AnimationName = animationName;
             _commandManager.Clear();
 
+            AnimationLoaded?.Invoke();
             SetStatus($"Loaded: {animationName}.json", isError: false);
             return true;
         }
