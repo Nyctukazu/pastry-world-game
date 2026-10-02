@@ -60,66 +60,65 @@ public class FramePropertiesModal
 
         ImGui.SetNextWindowSize(new ImVector2(520, 480), ImGuiCond.Appearing);
         bool open = true;
-        if (ImGui.BeginPopupModal(PopupId, ref open, ImGuiWindowFlags.NoResize))
+
+        if (!ImGui.BeginPopupModal(PopupId, ref open, ImGuiWindowFlags.NoResize))
         {
-            IsOpen = true;
-            ImGui.Text($"{_target?.PartName}   \u2014  Frame {_frame + 1}");
-            ImGui.Separator();
-            ImGui.SliderFloat("Opacity", ref _opacity, 0f, 1f);
-            string[] blendNames = Enum.GetNames(typeof(BlendMode));
-            int blendIdx = (int)_blend;
-            if (ImGui.Combo("Blend Mode", ref blendIdx, blendNames, blendNames.Length))
-            {
-                _blend = (BlendMode)blendIdx;
-            }
-
-            ImGui.Text("Active Channels:");
-            ImGui.SameLine();
-            ImGui.Checkbox("Blue", ref _chB);
-            ImGui.SameLine();
-            ImGui.Checkbox("Green", ref _chG);
-            ImGui.SameLine();
-            ImGui.Checkbox("Red", ref _chR);
-            ImGui.SameLine();
-            ImGui.Checkbox("Alpha", ref _chA);
-
-            ImGui.Separator();
-
-            ImGui.SetNextItemWidth(140);
-            bool xChanged = ImGui.SliderFloat("X Stretch", ref _stretchX, 0.1f, 3f);
-            ImGui.SameLine();
-            ImGui.Checkbox("Link##stretchLink", ref _linkStretch);
-
-            ImGui.SetNextItemWidth(140);
-            bool yChanged = ImGui.SliderFloat("Y Stretch", ref _stretchY, 0.1f, 3f);
-
-            if (_linkStretch)
-            {
-                if (xChanged)
-                {
-                    _stretchY = _stretchX;
-                   
-                } else if (yChanged)
-                {
-                    _stretchX = _stretchY;
-                } 
-
-                ImGui.SliderAngle("Rotation", ref _rotation, -180f, 180f);
-                ImGui.DragInt("Z-Index", ref _zIndex, 1, -1000, 1000);
-                ImGui.Separator();
-                DrawZOrderPanel();
-                ImGui.Spacing();
-                DrawFrameContentsPanel();
-                ImGui.Separator();
-                DrawFooterButtons();
-                ImGui.EndPopup();
-            } 
-            else
-            {
-                IsOpen = false;
-            }
-
+            IsOpen = false;
+            return;
         }
+
+        IsOpen = true;
+        ImGui.Text($"{_target?.PartName}   \u2014  Frame {_frame + 1}");
+        ImGui.Separator();
+        ImGui.SliderFloat("Opacity", ref _opacity, 0f, 1f);
+        string[] blendNames = Enum.GetNames(typeof(BlendMode));
+        int blendIdx = (int)_blend;
+        if (ImGui.Combo("Blend Mode", ref blendIdx, blendNames, blendNames.Length))
+        {
+            _blend = (BlendMode)blendIdx;
+        }
+
+        ImGui.Text("Active Channels:");
+        ImGui.SameLine();
+        ImGui.Checkbox("Blue", ref _chB);
+        ImGui.SameLine();
+        ImGui.Checkbox("Green", ref _chG);
+        ImGui.SameLine();
+        ImGui.Checkbox("Red", ref _chR);
+        ImGui.SameLine();
+        ImGui.Checkbox("Alpha", ref _chA);
+
+        ImGui.Separator();
+
+        ImGui.SetNextItemWidth(140);
+        bool xChanged = ImGui.SliderFloat("X Stretch", ref _stretchX, 0.1f, 3f);
+        ImGui.SameLine();
+        ImGui.Checkbox("Link##stretchLink", ref _linkStretch);
+
+        ImGui.SetNextItemWidth(140);
+        bool yChanged = ImGui.SliderFloat("Y Stretch", ref _stretchY, 0.1f, 3f);
+
+        if (_linkStretch)
+        {
+            if (xChanged)
+            {
+                _stretchY = _stretchX;
+                   
+            } else if (yChanged)
+            {
+                _stretchX = _stretchY;
+            } 
+        }
+
+        ImGui.SliderAngle("Rotation", ref _rotation, -180f, 180f);
+        ImGui.DragInt("Z-Index", ref _zIndex, 1, -1000, 1000);
+        ImGui.Separator();
+        DrawZOrderPanel();
+        ImGui.Spacing();
+        DrawFrameContentsPanel();
+        ImGui.Separator();
+        DrawFooterButtons();
+        ImGui.EndPopup();
     }
 
     private void DrawZOrderPanel()
@@ -202,16 +201,8 @@ public class FramePropertiesModal
  
         if (!_target.Keyframes.TryGetValue(_frame, out var kf))
         {
-            kf = new PartKeyframe();
             var held = _getHeld(_target, _frame);
-            if (held != null)
-            {
-                kf.SpriteId = held.SpriteId;
-                kf.X = held.X;
-                kf.Y = held.Y;
-                kf.FlipX = held.FlipX;
-                kf.FlipY = held.FlipY;
-            }
+            kf = held != null ? held.Clone() : new PartKeyframe();
             _target.Keyframes[_frame] = kf;
         }
  

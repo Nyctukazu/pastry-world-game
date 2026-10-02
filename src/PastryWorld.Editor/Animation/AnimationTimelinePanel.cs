@@ -164,7 +164,7 @@ public class AnimationTimelinePanel
             {
                 _clip.Layers.Add(new PartLayer
                 {
-                    PartName = "NewPart", SortOrder = _clip.Layers.Count
+                    PartName = MakeUniqueName("NewPart"), SortOrder = _clip.Layers.Count
                 });
             }
             return;
@@ -481,7 +481,10 @@ public class AnimationTimelinePanel
         if (isSelected) color = new ImVector4(0.2f, 0.8f, 0.9f, 1f);
 
         ImGui.PushStyleColor(ImGuiCol.Button, color);
-        if (ImGui.Button($"##{frame}", new System.Numerics.Vector2(16, 16)))
+        bool leftClicked = ImGui.Button($"##{frame}", new ImVector2(16, 16));
+        ImGui.PopStyleColor();
+
+        if (leftClicked)
         {
             _currentFrame = frame;
             SelectedLayer = layer.PartName;
@@ -490,28 +493,17 @@ public class AnimationTimelinePanel
             if (!hasKey)
             {
                 var held = GetHeldKeyframe(layer, frame);
-                layer.Keyframes[frame] = held != null
-                    ? new PartKeyframe { SpriteId = held.SpriteId, 
-                                        X = held.X, 
-                                        Y = held.Y, 
-                                        Rotation = held.Rotation,
-                                        FlipX = held.FlipX,
-                                        FlipY = held.FlipY,
-                                        Opacity = held.Opacity,
-                                        Blend = held.Blend,
-                                        ChannelR = held.ChannelR,
-                                        ChannelG = held.ChannelG,
-                                        ChannelB = held.ChannelB,
-                                        ChannelA = held.ChannelA,
-                                        ScaleX = held.ScaleX,
-                                        ScaleY = held.ScaleY,
-                                        Z_Index = held.Z_Index
-                                        }
-                    : new PartKeyframe();
+                layer.Keyframes[frame] = held?.Clone() ?? new PartKeyframe();
             }
         }
-
-        ImGui.PopStyleColor();
+        
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+        {
+            _currentFrame = frame;
+            SelectedLayer = layer.PartName;
+            SelectedFrame = frame;
+            _framePropsModal.Open(_clip, layer, frame, GetHeldKeyframe);
+        }
 
         if (isPlayhead)
         {

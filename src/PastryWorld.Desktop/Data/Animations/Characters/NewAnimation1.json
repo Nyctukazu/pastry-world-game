@@ -1,23 +1,5 @@
 {
   "Mode": "Directional",
-  "PartNames": [
-    "Head",
-    "Torso",
-    "LeftArm",
-    "RightArm",
-    "Ears",
-    "Tail",
-    "Weapon",
-    "Accessory",
-    "Expression",
-    "fdsf",
-    "12",
-    "dsa",
-    "fsa",
-    "dasd",
-    "dsad",
-    "heas"
-  ],
   "ClipsByDirection": {
     "North": {
       "Name": "New Animation Set",
@@ -395,7 +377,7 @@
     },
     "South": {
       "Name": "New Animation Set",
-      "FrameCount": 7,
+      "FrameCount": 11,
       "Layers": [
         {
           "PartName": "Head",
@@ -549,6 +531,28 @@
               "SpriteId": "",
               "X": 0,
               "Y": 0,
+              "Rotation": 0.2617994,
+              "FlipX": false,
+              "FlipY": false,
+              "Z_Index": 17,
+              "HoldFrames": 1,
+              "Visible": true,
+              "ScaleX": 1,
+              "ScaleY": 1,
+              "Opacity": 255,
+              "TintColor": null,
+              "TintStrength": 0,
+              "Blend": "Normal",
+              "PaletteIndex": 0,
+              "ChannelR": true,
+              "ChannelG": true,
+              "ChannelB": true,
+              "ChannelA": true
+            },
+            "6": {
+              "SpriteId": "",
+              "X": 0,
+              "Y": 0,
               "Rotation": 0,
               "FlipX": false,
               "FlipY": false,
@@ -581,6 +585,28 @@
           "SortOrder": 13,
           "Keyframes": {
             "6": {
+              "SpriteId": "",
+              "X": 0,
+              "Y": 0,
+              "Rotation": 0,
+              "FlipX": false,
+              "FlipY": false,
+              "Z_Index": 0,
+              "HoldFrames": 1,
+              "Visible": true,
+              "ScaleX": 1,
+              "ScaleY": 1,
+              "Opacity": 255,
+              "TintColor": null,
+              "TintStrength": 0,
+              "Blend": "Normal",
+              "PaletteIndex": 0,
+              "ChannelR": true,
+              "ChannelG": true,
+              "ChannelB": true,
+              "ChannelA": true
+            },
+            "5": {
               "SpriteId": "",
               "X": 0,
               "Y": 0,
